@@ -8,6 +8,7 @@ export interface Flight {
     code: string
     logo: string
     color: string
+    photo?: string
   }
   departure: {
     time: string

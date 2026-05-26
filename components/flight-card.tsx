@@ -8,6 +8,15 @@ interface FlightCardProps {
 
 export function FlightCard({ flight }: FlightCardProps) {
   const AirlineLogo = () => {
+    if (flight.airline.photo) {
+      return (
+        <img
+          src={flight.airline.photo}
+          alt={flight.airline.name}
+          className="h-7 w-7 object-contain"
+        />
+      )
+    }
     if (flight.airline.logo === "star") {
       return (
         <Star
