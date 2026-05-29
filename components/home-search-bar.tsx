@@ -8,6 +8,18 @@ import { Calendar as CalendarPicker } from "@/components/ui/calendar"
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"]
 
+interface Destination {
+  city: string
+  country: string
+  code: string
+}
+
+const DESTINATIONS: Destination[] = [
+  { city: "파리", country: "프랑스", code: "CDG" },
+  { city: "뉴욕", country: "미국", code: "JFK" },
+  { city: "시드니", country: "호주", code: "SYD" },
+]
+
 function formatDateDisplay(date: Date): string {
   return `${date.getMonth() + 1}.${date.getDate()}.${WEEKDAYS[date.getDay()]}`
 }
@@ -22,10 +34,12 @@ function toISODate(date: Date): string {
 export function HomeSearchBar() {
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [open, setOpen] = useState(false)
+  const [arrival, setArrival] = useState<Destination>(DESTINATIONS[0])
+  const [arrivalOpen, setArrivalOpen] = useState(false)
 
   const searchHref = date
-    ? `/search?departureCode=ICN&arrivalCode=SYD&departureAt=${toISODate(date)}`
-    : "/search"
+    ? `/search?departureCode=ICN&arrivalCode=${arrival.code}&departureAt=${toISODate(date)}`
+    : `/search?departureCode=ICN&arrivalCode=${arrival.code}`
 
   return (
     <div className="mt-6 w-full max-w-2xl">
@@ -38,10 +52,38 @@ export function HomeSearchBar() {
 
         <div className="my-3 w-px bg-border" />
 
-        <div className="flex flex-1 items-center gap-3 px-6 py-4 sm:px-8 sm:py-5">
-          <span className="text-sm font-semibold text-[#4D85AA] sm:text-base">도착</span>
-          <span className="text-sm text-foreground sm:text-base">도쿄 ( 일본, NRT )</span>
-        </div>
+        <Popover open={arrivalOpen} onOpenChange={setArrivalOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="flex flex-1 items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-muted/50 sm:px-8 sm:py-5"
+            >
+              <span className="text-sm font-semibold text-[#4D85AA] sm:text-base">도착</span>
+              <span className="text-sm text-foreground sm:text-base">
+                {arrival.city} ( {arrival.country}, {arrival.code} )
+              </span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-1" align="end" sideOffset={12}>
+            {DESTINATIONS.map((dest) => (
+              <button
+                key={dest.code}
+                type="button"
+                onClick={() => {
+                  setArrival(dest)
+                  setArrivalOpen(false)
+                }}
+                className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted ${
+                  arrival.code === dest.code ? "bg-muted font-medium text-[#4D85AA]" : "text-foreground"
+                }`}
+              >
+                <span>
+                  {dest.city} ( {dest.country}, {dest.code} )
+                </span>
+              </button>
+            ))}
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* 옵션 바 */}
