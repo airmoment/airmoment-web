@@ -1,10 +1,11 @@
 "use client"
 
-import { User, Calendar, PlaneTakeoff, CheckSquare, Square, Bell } from "lucide-react"
+import { User, Calendar, PlaneTakeoff, CheckSquare, Square } from "lucide-react"
 import { useState } from "react"
 import type { SearchParams } from "@/lib/mock-data"
 import type { InterestBody } from "@/lib/api"
 import { BookmarkButton } from "@/components/bookmark-button"
+import { AlertButton } from "@/components/alert-button"
 
 interface SearchSummaryBarProps {
   searchParams: SearchParams
@@ -86,13 +87,7 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
         <BookmarkButton route={route} variant="compact" />
 
         {/* 구매시기 알림받기 버튼 */}
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50"
-        >
-          <Bell className="h-4 w-4" />
-          구매시기 알림받기
-        </button>
+        <AlertButton route={route} />
       </div>
     </div>
   )
