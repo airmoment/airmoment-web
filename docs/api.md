@@ -1,7 +1,7 @@
 # AirMoment API 명세
 
 > 📌 **원본:** 노션
-> 🕒 **최종 동기화:** 2026-05-31
+> 🕒 **최종 동기화:** 2026-06-02
 > 🌐 **Base URL:** `http://15.165.123.108:8080`
 
 ---
@@ -387,7 +387,7 @@ email(id), password로 로그인을 진행하는 POST API. 성공 시 `accessTok
 | `accessToken` | string | 액세스 토큰 (토큰 필요한 API 요청 시 헤더에 담아 사용) |
 | `refreshToken` | string | 리프레쉬 토큰 (지금은 신경 X — TTL 길게 설정됨) |
 
-> 💡 **백엔드팀 안내:** `accessToken`의 TTL이 충분히 길게 설정되어 있어 프로젝트 기간 내 만료될 일이 없습니다. **`refreshToken`은 무시해도 됩니다.**
+> 💡 **백엔드 안내:** `accessToken`의 TTL이 충분히 길게 설정되어 있어 프로젝트 기간 내 만료될 일이 없습니다. **`refreshToken`은 무시해도 됩니다.**
 
 ### 4️⃣ Success ✅ `200 OK`
 
