@@ -50,8 +50,7 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
         )
         if (match?.isBookmarked) {
           setIsBookmarked(true)
-          // mypage 응답에 interestId가 빠져있어서 id는 알 수 없음
-          setInterestId(null)
+          setInterestId(match.interestId)
         }
       } catch (err) {
         // 초기 상태 조회 실패는 조용히 무시 (사용자 액션은 가능)

@@ -1,26 +1,88 @@
 "use client"
 
+import { useState } from "react"
 import { Bell, BellRing, Calendar, Heart } from "lucide-react"
 import { PriceBandChart } from "@/components/price-band-chart"
-import type { MypageInterest } from "@/lib/api"
+import {
+  addBookmark,
+  removeBookmark,
+  subscribeEmail,
+  unsubscribeEmail,
+  type MypageInterest,
+} from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
 import { toast } from "@/hooks/use-toast"
 
 interface InterestCardProps {
   interest: MypageInterest
+  /** 토글 후 마이페이지 데이터 재조회 트리거 (부모에서 다시 fetch) */
+  onChanged?: () => void
 }
 
-export function InterestCard({ interest }: InterestCardProps) {
+export function InterestCard({ interest, onChanged }: InterestCardProps) {
+  const { token } = useAuth()
   const route = `${interest.departureCode} → ${interest.arrivalCode}`
   const dateLabel = `${interest.departureAt} (${interest.departureDayOfWeek})`
 
-  // 마이페이지 응답엔 interestId가 없어서 해제 API를 직접 호출할 수 없다.
-  // 토글 시도하면 안내 토스트만 띄운다. (백엔드가 interestId 추가하면 정상 동작 가능)
-  const explainCannotToggle = () =>
-    toast({
-      title: "해제 기능 준비 중",
-      description:
-        "백엔드 응답에 interestId가 포함되면 여기서도 바로 해제 가능합니다. (관심노선/알림 추가는 검색 결과 페이지에서 동작합니다)",
-    })
+  // 낙관적 업데이트를 위한 로컬 상태. 실패 시 원상복구.
+  const [isBookmarked, setIsBookmarked] = useState(interest.isBookmarked)
+  const [isEmailEnabled, setIsEmailEnabled] = useState(interest.isEmailNotificationEnabled)
+  const [bookmarkLoading, setBookmarkLoading] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
+
+  const interestBody = {
+    departureCode: interest.departureCode,
+    arrivalCode: interest.arrivalCode,
+    departureAt: interest.departureAt,
+    nonstopOnly: interest.nonStopOnly,
+  }
+
+  async function toggleBookmark() {
+    if (!token || bookmarkLoading) return
+    const next = !isBookmarked
+    setBookmarkLoading(true)
+    setIsBookmarked(next) // 낙관적 업데이트
+    try {
+      if (next) {
+        await addBookmark(interestBody, token)
+        toast({ title: "관심노선이 설정되었습니다." })
+      } else {
+        await removeBookmark(interest.interestId, token)
+        toast({ title: "관심노선이 해제되었습니다." })
+      }
+      onChanged?.()
+    } catch (err) {
+      // 실패 시 원상복구
+      setIsBookmarked(!next)
+      const msg = (err as { message?: string })?.message || "요청에 실패했습니다."
+      toast({ title: "관심노선 처리 실패", description: msg, variant: "destructive" })
+    } finally {
+      setBookmarkLoading(false)
+    }
+  }
+
+  async function toggleEmail() {
+    if (!token || emailLoading) return
+    const next = !isEmailEnabled
+    setEmailLoading(true)
+    setIsEmailEnabled(next) // 낙관적 업데이트
+    try {
+      if (next) {
+        await subscribeEmail(interestBody, token)
+        toast({ title: "이메일 알림이 설정되었습니다." })
+      } else {
+        await unsubscribeEmail(interest.interestId, token)
+        toast({ title: "이메일 알림이 해제되었습니다." })
+      }
+      onChanged?.()
+    } catch (err) {
+      setIsEmailEnabled(!next)
+      const msg = (err as { message?: string })?.message || "요청에 실패했습니다."
+      toast({ title: "알림 처리 실패", description: msg, variant: "destructive" })
+    } finally {
+      setEmailLoading(false)
+    }
+  }
 
   return (
     <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
@@ -53,42 +115,46 @@ export function InterestCard({ interest }: InterestCardProps) {
               icon={
                 <Heart
                   className={`h-5 w-5 ${
-                    interest.isBookmarked
+                    isBookmarked
                       ? "fill-primary text-primary"
                       : "text-muted-foreground"
                   }`}
                 />
               }
               label="관심노선"
-              enabled={interest.isBookmarked}
-              onToggle={explainCannotToggle}
+              enabled={isBookmarked}
+              loading={bookmarkLoading}
+              onToggle={toggleBookmark}
             />
             <ToggleRow
               icon={
-                interest.isEmailNotificationEnabled ? (
+                isEmailEnabled ? (
                   <BellRing className="h-5 w-5 text-primary" />
                 ) : (
                   <Bell className="h-5 w-5 text-muted-foreground" />
                 )
               }
               label="최저가 알림"
-              enabled={interest.isEmailNotificationEnabled}
-              onToggle={explainCannotToggle}
+              enabled={isEmailEnabled}
+              loading={emailLoading}
+              onToggle={toggleEmail}
             />
           </div>
 
-          <p className="pt-1 text-xs text-muted-foreground">
-            마지막 예측: {new Date(interest.predictedAt).toLocaleString("ko-KR")}
-          </p>
+          {interest.predictedAt && (
+            <p className="pt-1 text-xs text-muted-foreground">
+              마지막 예측: {new Date(interest.predictedAt).toLocaleString("ko-KR")}
+            </p>
+          )}
         </div>
 
-        {/* 우측: 가격 밴드 차트 */}
+        {/* 우측: 가격 밴드 차트 (predictions이 null인 경우 안내) */}
         <div>
-          <PriceBandChart
-            predictions={interest.predictions}
-            route={route}
-            // 마이페이지 응답엔 daysUntilDeparture가 없음
-          />
+          {interest.predictions && interest.predictions.length > 0 ? (
+            <PriceBandChart predictions={interest.predictions} route={route} />
+          ) : (
+            <PredictionPlaceholder />
+          )}
         </div>
       </div>
     </div>
@@ -99,11 +165,13 @@ function ToggleRow({
   icon,
   label,
   enabled,
+  loading,
   onToggle,
 }: {
   icon: React.ReactNode
   label: string
   enabled: boolean
+  loading: boolean
   onToggle: () => void
 }) {
   return (
@@ -116,7 +184,8 @@ function ToggleRow({
         type="button"
         onClick={onToggle}
         aria-pressed={enabled}
-        className={`relative h-6 w-11 rounded-full transition-colors ${
+        disabled={loading}
+        className={`relative h-6 w-11 rounded-full transition-colors disabled:opacity-60 ${
           enabled ? "bg-[#4a6d87]" : "bg-muted"
         }`}
       >
@@ -126,6 +195,21 @@ function ToggleRow({
           }`}
         />
       </button>
+    </div>
+  )
+}
+
+function PredictionPlaceholder() {
+  return (
+    <div className="flex h-full min-h-[200px] items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-foreground">예측 데이터 준비 중</p>
+        <p className="text-xs text-muted-foreground">
+          해당 노선에 대한 가격 예측이 아직 수행되지 않았어요.
+          <br />
+          잠시 후 다시 확인해주세요.
+        </p>
+      </div>
     </div>
   )
 }

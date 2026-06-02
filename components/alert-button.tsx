@@ -48,7 +48,7 @@ export function AlertButton({ route, className }: AlertButtonProps) {
         )
         if (match?.isEmailNotificationEnabled) {
           setIsEnabled(true)
-          setInterestId(null) // mypage 응답에 interestId가 없음
+          setInterestId(match.interestId)
         }
       } catch (err) {
         console.warn("[AlertButton] mypage prefetch failed:", err)

@@ -741,6 +741,7 @@ DELETE /api/v1/interests/email-notification/1
 | Field | Type | Description |
 |---|---|---|
 | `interests` | Array&lt;json&gt; | 관심/알림 노선 목록 |
+| ↳ `interestId` | Long | 관심/알림 노선 id (해제 API 호출 시 사용) |
 | ↳ `departureCode` | string | 출발 공항 코드 |
 | ↳ `arrivalCode` | string | 도착 공항 코드 |
 | ↳ `departureAt` | LocalDate | 출발 일자 (`YYYY-MM-DD`) |
@@ -748,16 +749,18 @@ DELETE /api/v1/interests/email-notification/1
 | ↳ `nonStopOnly` | boolean | 직항 여부 (`true`면 직항) |
 | ↳ `isBookmarked` | boolean | 관심노선 설정 여부 |
 | ↳ `isEmailNotificationEnabled` | boolean | 알림 수신 설정 여부 |
-| ↳ `predictions` | Array&lt;json&gt; | 시점별 가격 예측 리스트 |
+| ↳ `predictions` | Array&lt;json&gt; \| null | 시점별 가격 예측 리스트 (예측 미수행 시 `null`) |
 |     ▸ `day` | int | n일 차 (0, 1, 3, 7, 14) |
 |     ▸ `q10` | int | q10 분위수 가격 |
 |     ▸ `q25` | int | q25 분위수 가격 |
 |     ▸ `q50` | int | q50 분위수(중앙값) 가격 |
 |     ▸ `q75` | int | q75 분위수 가격 |
 |     ▸ `q90` | int | q90 분위수 가격 |
-| ↳ `predictedAt` | LocalDateTime | 예측 수행 일시 |
+| ↳ `predictedAt` | LocalDateTime \| null | 예측 수행 일시 (예측 미수행 시 `null`) |
 
 > 💡 **`isBookmarked`와 `isEmailNotificationEnabled`가 분리되어 있음.** 한 노선에 관심노선만 설정, 알림만 설정, 둘 다 설정 — 3가지 케이스가 모두 가능. 마이페이지 UI에서 이 두 플래그로 각 노선의 토글 상태를 표시하면 됨.
+
+> 💡 **`predictions` / `predictedAt`은 `null`일 수 있음**. 해당 노선에 대한 예측이 아직 수행되지 않은 경우. 차트 영역엔 "예측 데이터 준비 중" 같은 안내 또는 스켈레톤을 표시.
 
 ### 4️⃣ Success ✅ `200 OK`
 
@@ -768,6 +771,7 @@ DELETE /api/v1/interests/email-notification/1
     "data": {
         "interests": [
             {
+                "interestId": 2,
                 "departureCode": "ICN",
                 "arrivalCode": "SYD",
                 "departureAt": "2026-07-08",
@@ -775,16 +779,11 @@ DELETE /api/v1/interests/email-notification/1
                 "nonStopOnly": true,
                 "isBookmarked": true,
                 "isEmailNotificationEnabled": true,
-                "predictions": [
-                    { "day": 0, "q10": 481468, "q25": 481468, "q50": 481468, "q75": 481468, "q90": 481468 },
-                    { "day": 1, "q10": 650492, "q25": 698315, "q50": 708403, "q75": 718491, "q90": 766314 },
-                    { "day": 3, "q10": 628510, "q25": 657792, "q50": 668564, "q75": 679337, "q90": 708619 },
-                    { "day": 7, "q10": 602702, "q25": 650134, "q50": 670388, "q75": 690642, "q90": 738074 },
-                    { "day": 14, "q10": 574626, "q25": 621919, "q50": 638085, "q75": 654251, "q90": 701544 }
-                ],
-                "predictedAt": "2026-05-31T19:35:38.535667+09:00"
+                "predictions": null,
+                "predictedAt": null
             },
             {
+                "interestId": 3,
                 "departureCode": "ICN",
                 "arrivalCode": "SYD",
                 "departureAt": "2026-07-31",
@@ -792,14 +791,8 @@ DELETE /api/v1/interests/email-notification/1
                 "nonStopOnly": true,
                 "isBookmarked": false,
                 "isEmailNotificationEnabled": true,
-                "predictions": [
-                    { "day": 0, "q10": 592573, "q25": 592573, "q50": 592573, "q75": 592573, "q90": 592573 },
-                    { "day": 1, "q10": 685424, "q25": 733247, "q50": 743335, "q75": 753423, "q90": 801246 },
-                    { "day": 3, "q10": 692196, "q25": 721477, "q50": 732250, "q75": 743023, "q90": 772304 },
-                    { "day": 7, "q10": 651522, "q25": 698955, "q50": 719209, "q75": 739462, "q90": 786895 },
-                    { "day": 14, "q10": 617295, "q25": 664588, "q50": 680754, "q75": 696920, "q90": 744213 }
-                ],
-                "predictedAt": "2026-05-31T19:35:43.873257+09:00"
+                "predictions": null,
+                "predictedAt": null
             }
         ]
     }
@@ -832,7 +825,7 @@ interests[]
 - 관심노선 해제 → `DELETE /api/v1/interests/{interestId}` (5번 API)
 - 알림 해제 → `DELETE /api/v1/interests/email-notification/{interestId}` (7번 API)
 
-> ⚠️ **현재 명세에 `interestId`가 응답에 없음**. 해제하려면 id가 필요한데, 이 응답엔 노선의 식별자가 안 보임. → 백엔드 분께 **"마이페이지 응답에 `interestId`를 포함해주실 수 있나요? 해제 시 필요합니다"** 확인 필요.
+> ✅ `interestId`가 응답에 포함되어 있어서, 마이페이지와 검색 결과 페이지 어디서든 토글 ON/OFF가 정상 동작합니다.
 
 ---
 ## 🔧 호출 시 주의사항

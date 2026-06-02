@@ -231,6 +231,7 @@ export async function unsubscribeEmail(
 // ─────────────────────────────────────────────
 
 export interface MypageInterest {
+  interestId: number
   departureCode: string
   arrivalCode: string
   departureAt: string
@@ -238,8 +239,9 @@ export interface MypageInterest {
   nonStopOnly: boolean
   isBookmarked: boolean
   isEmailNotificationEnabled: boolean
-  predictions: PricePredictionPoint[]
-  predictedAt: string
+  /** 예측이 아직 수행되지 않은 경우 null. UI에서 차트 대신 안내문/스켈레톤 표시. */
+  predictions: PricePredictionPoint[] | null
+  predictedAt: string | null
 }
 
 export interface MypageData {

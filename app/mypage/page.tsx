@@ -13,6 +13,8 @@ export default function MyPage() {
   const [interests, setInterests] = useState<MypageInterest[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  // 토글 동작 등으로 강제 재조회가 필요할 때 증가시키면 useEffect가 다시 동작.
+  const [refreshTick, setRefreshTick] = useState(0)
 
   useEffect(() => {
     if (!isHydrated) return
@@ -40,7 +42,7 @@ export default function MyPage() {
     return () => {
       cancelled = true
     }
-  }, [token, isHydrated])
+  }, [token, isHydrated, refreshTick])
 
   return (
     <main className="min-h-screen bg-background pt-14">
@@ -73,10 +75,11 @@ export default function MyPage() {
           <EmptyInterestsState />
         ) : (
           <div className="space-y-6">
-            {interests.map((interest, idx) => (
+            {interests.map((interest) => (
               <InterestCard
-                key={`${interest.departureCode}-${interest.arrivalCode}-${interest.departureAt}-${idx}`}
+                key={interest.interestId}
                 interest={interest}
+                onChanged={() => setRefreshTick((t) => t + 1)}
               />
             ))}
           </div>
