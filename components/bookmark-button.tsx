@@ -34,9 +34,17 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
         toast({ title: "관심노선이 설정되었습니다." })
       }
     } catch (err) {
-      const msg =
-        err instanceof ApiError ? err.message : "요청 중 오류가 발생했습니다."
-      toast({ title: msg, variant: "destructive" })
+      // 디버깅: 실제 에러를 콘솔에 항상 남긴다
+      console.error("[BookmarkButton] toggle failed:", err)
+      let title = "관심노선 처리 실패"
+      let description = "요청 중 오류가 발생했습니다."
+      if (err instanceof ApiError) {
+        title = `관심노선 처리 실패 (${err.status})`
+        description = err.message || "응답 본문이 비어있습니다. 콘솔을 확인해주세요."
+      } else if (err instanceof Error) {
+        description = err.message || description
+      }
+      toast({ title, description, variant: "destructive" })
     } finally {
       setLoading(false)
     }
