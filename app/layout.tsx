@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { Header } from '@/components/header'
 import { AuthProvider } from '@/lib/auth-context'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -50,6 +51,7 @@ export default function RootLayout({
         <AuthProvider>
           <Header />
           {children}
+          <Toaster />
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

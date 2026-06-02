@@ -1,7 +1,8 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import type { ReactNode } from "react"
+import { AuthModal } from "@/components/auth-modal"
 import {
   clearStoredToken,
   getStoredToken,
@@ -18,6 +19,12 @@ interface AuthState {
   isHydrated: boolean
   login: (token: string, user: StoredUser) => void
   logout: () => void
+  /**
+   * 로그인 모달을 띄움. 이미 로그인 상태면 onSuccess를 즉시 실행한다.
+   * 어떤 컴포넌트에서든 "로그인이 필요한 액션"을 한 줄로 트리거할 수 있다.
+   */
+  requestLogin: (onSuccess?: () => void) => void
+  openLoginModal: () => void
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -25,9 +32,11 @@ const AuthContext = createContext<AuthState | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<StoredUser | null>(null)
-  // localStorage는 클라이언트에만 있어서, 첫 렌더 후 동기화한다.
-  // isHydrated가 false인 동안 로그인 상태에 따라 UI가 깜박이는 것을 막을 수 있다.
   const [isHydrated, setIsHydrated] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  // 로그인 후 한 번만 실행할 후속 액션. 콜백을 state에 넣으면 setState가 함수로
+  // 호출되는 문제가 있어서 ref로 보관한다.
+  const pendingActionRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     setToken(getStoredToken())
@@ -48,6 +57,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }, [])
 
+  const openLoginModal = useCallback(() => setModalOpen(true), [])
+
+  const requestLogin = useCallback(
+    (onSuccess?: () => void) => {
+      if (token) {
+        onSuccess?.()
+        return
+      }
+      pendingActionRef.current = onSuccess ?? null
+      setModalOpen(true)
+    },
+    [token]
+  )
+
+  const handleAuthenticated = useCallback(() => {
+    const pending = pendingActionRef.current
+    pendingActionRef.current = null
+    pending?.()
+  }, [])
+
   const value = useMemo<AuthState>(
     () => ({
       token,
@@ -56,11 +85,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isHydrated,
       login,
       logout,
+      requestLogin,
+      openLoginModal,
     }),
-    [token, user, isHydrated, login, logout]
+    [token, user, isHydrated, login, logout, requestLogin, openLoginModal]
   )
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <AuthModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onAuthenticated={handleAuthenticated}
+      />
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth(): AuthState {

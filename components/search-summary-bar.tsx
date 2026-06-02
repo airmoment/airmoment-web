@@ -1,14 +1,18 @@
 "use client"
 
-import { User, Calendar, PlaneTakeoff, CheckSquare, Square, Bell, Heart } from "lucide-react"
+import { User, Calendar, PlaneTakeoff, CheckSquare, Square, Bell } from "lucide-react"
 import { useState } from "react"
 import type { SearchParams } from "@/lib/mock-data"
+import type { InterestBody } from "@/lib/api"
+import { BookmarkButton } from "@/components/bookmark-button"
 
 interface SearchSummaryBarProps {
   searchParams: SearchParams
+  /** 현재 검색 조건을 InterestBody 형태로. 관심노선/알림 API 호출에 사용. */
+  route: InterestBody
 }
 
-export function SearchSummaryBar({ searchParams }: SearchSummaryBarProps) {
+export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps) {
   const [directOnly, setDirectOnly] = useState(searchParams.directOnly)
 
   return (
@@ -79,13 +83,7 @@ export function SearchSummaryBar({ searchParams }: SearchSummaryBarProps) {
       {/* 버튼 그룹 */}
       <div className="flex flex-shrink-0 items-center gap-3 whitespace-nowrap">
         {/* 관심노선 버튼 */}
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
-        >
-          <Heart className="h-4 w-4" />
-          관심노선
-        </button>
+        <BookmarkButton route={route} variant="compact" />
 
         {/* 구매시기 알림받기 버튼 */}
         <button

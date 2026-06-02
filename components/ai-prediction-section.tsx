@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, ChevronUp, ChevronDown } from "lucide-react"
+import { ChevronUp, ChevronDown } from "lucide-react"
 import { PriceGauge } from "./price-gauge"
 import { DonutChart } from "./donut-chart"
 import type { PricePrediction, PredictionFactors, PriceDropPeriod } from "@/lib/mock-data"
@@ -18,7 +18,6 @@ export function AIPredictionSection({
   factors,
   dropPeriods,
 }: AIPredictionSectionProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
   const [isExpanded, setIsExpanded] = useState(true)
   const [threshold, setThreshold] = useState(50)
   const [gainWeight, setGainWeight] = useState(50)
@@ -28,14 +27,7 @@ export function AIPredictionSection({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">가격 조정 가능성 예측 결과</h2>
-        <button
-          type="button"
-          onClick={() => setIsFavorite(!isFavorite)}
-          className="flex items-center gap-1 rounded-full border border-primary px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
-        >
-          <Heart className={`h-4 w-4 ${isFavorite ? "fill-primary" : ""}`} />
-          관심노선
-        </button>
+        {/* 관심노선 토글은 상단 SearchSummaryBar에서 일괄 관리 (중복 제거) */}
       </div>
 
       {/* Main Prediction Card */}

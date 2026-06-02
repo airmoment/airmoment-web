@@ -1,10 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { LogOut, User } from "lucide-react"
-import { AuthModal } from "@/components/auth-modal"
 import { useAuth } from "@/lib/auth-context"
 import {
   DropdownMenu,
@@ -16,8 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function Header() {
-  const { isLoggedIn, isHydrated, user, logout } = useAuth()
-  const [authOpen, setAuthOpen] = useState(false)
+  const { isLoggedIn, isHydrated, user, logout, openLoginModal } = useAuth()
   const router = useRouter()
 
   function handleLogout() {
@@ -73,13 +70,11 @@ export function Header() {
           ) : (
             <ProfileIconButton
               aria-label="로그인"
-              onClick={() => setAuthOpen(true)}
+              onClick={openLoginModal}
             />
           )}
         </div>
       </div>
-
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </header>
   )
 }

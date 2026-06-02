@@ -104,6 +104,8 @@ export default async function SearchResultsPage({
     // API 실패 시 mock 데이터 사용
   }
 
+  const route = { departureCode, arrivalCode, departureAt, nonstopOnly }
+
   const displaySearchParams: SearchParams = {
     departure: {
       city: departureCode,
@@ -125,7 +127,7 @@ export default async function SearchResultsPage({
   return (
     <main className="min-h-screen bg-background pt-14">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <SearchSummaryBar searchParams={displaySearchParams} />
+        <SearchSummaryBar searchParams={displaySearchParams} route={route} />
 
         <div className="mt-6">
           <AIPredictionSection
