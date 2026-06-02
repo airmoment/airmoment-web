@@ -1,8 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Heart } from "lucide-react"
-import { addBookmark, ApiError, removeBookmark, type InterestBody } from "@/lib/api"
+import {
+  addBookmark,
+  ApiError,
+  getMypage,
+  removeBookmark,
+  type InterestBody,
+} from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "@/hooks/use-toast"
 
@@ -17,24 +23,89 @@ interface BookmarkButtonProps {
 
 export function BookmarkButton({ route, variant = "pill", className }: BookmarkButtonProps) {
   const { token, requestLogin } = useAuth()
+  /**
+   * 북마크 상태.
+   * - `interestId`가 number면: 이 세션에서 등록했거나 mypage에서 받아온 id가 있음 → 해제 가능
+   * - `interestId`가 null이지만 `isBookmarked`가 true면: 이전 세션에서 등록했고 id를 모르는 상태 → 해제 불가, 마이페이지로 안내
+   * - 둘 다 falsy면: 미등록
+   */
   const [interestId, setInterestId] = useState<number | null>(null)
+  const [isBookmarked, setIsBookmarked] = useState(false)
   const [loading, setLoading] = useState(false)
-  const isBookmarked = interestId !== null
+
+  // 로그인 상태로 마운트되면 mypage 조회해서 현재 노선의 북마크 상태를 미리 가져온다.
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await getMypage(token)
+        if (cancelled) return
+        const match = res.data.interests.find(
+          (i) =>
+            i.departureCode === route.departureCode &&
+            i.arrivalCode === route.arrivalCode &&
+            i.departureAt === route.departureAt &&
+            i.nonStopOnly === route.nonstopOnly
+        )
+        if (match?.isBookmarked) {
+          setIsBookmarked(true)
+          // mypage 응답에 interestId가 빠져있어서 id는 알 수 없음
+          setInterestId(null)
+        }
+      } catch (err) {
+        // 초기 상태 조회 실패는 조용히 무시 (사용자 액션은 가능)
+        console.warn("[BookmarkButton] mypage prefetch failed:", err)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [token, route.departureCode, route.arrivalCode, route.departureAt, route.nonstopOnly])
 
   async function doToggle(currentToken: string) {
     setLoading(true)
     try {
-      if (isBookmarked && interestId !== null) {
+      // 해제 시도
+      if (isBookmarked) {
+        if (interestId === null) {
+          toast({
+            title: "이 세션에서 해제할 수 없습니다",
+            description: "이전에 등록된 관심노선은 마이페이지에서 해제할 수 있습니다.",
+          })
+          return
+        }
         await removeBookmark(interestId, currentToken)
         setInterestId(null)
+        setIsBookmarked(false)
         toast({ title: "관심노선이 해제되었습니다." })
-      } else {
+        return
+      }
+
+      // 등록 시도
+      try {
         const res = await addBookmark(route, currentToken)
         setInterestId(res.data.interestId)
+        setIsBookmarked(true)
         toast({ title: "관심노선이 설정되었습니다." })
+      } catch (err) {
+        // 이미 등록된 케이스를 우아하게 처리: UI는 등록 상태로 동기화 (id는 모름)
+        if (
+          err instanceof ApiError &&
+          err.status === 400 &&
+          err.message.includes("이미")
+        ) {
+          setIsBookmarked(true)
+          setInterestId(null)
+          toast({
+            title: "이미 관심노선으로 등록되어 있습니다",
+            description: "해제는 마이페이지에서 가능합니다.",
+          })
+          return
+        }
+        throw err
       }
     } catch (err) {
-      // 디버깅: 실제 에러를 콘솔에 항상 남긴다
       console.error("[BookmarkButton] toggle failed:", err)
       let title = "관심노선 처리 실패"
       let description = "요청 중 오류가 발생했습니다."
@@ -52,13 +123,8 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
 
   function handleClick() {
     if (loading) return
-    // 비로그인: 로그인 모달 띄우고, 로그인 성공 시 자동으로 토글 액션 실행
     if (!token) {
       requestLogin(() => {
-        // 이 시점엔 context의 token이 갱신되어 있다.
-        // 하지만 클로저로 잡힌 token은 아직 null이라, 직접 storage에서 읽지 않고
-        // 다음 렌더에서 토글하도록 잠시 대기하는 게 안전한데, 간단한 처리 위해
-        // localStorage에서 바로 꺼내 쓴다.
         const fresh =
           typeof window !== "undefined"
             ? window.localStorage.getItem("airmoment.accessToken")
