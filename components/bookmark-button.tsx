@@ -65,6 +65,7 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
 
   async function doToggle(currentToken: string) {
     setLoading(true)
+    console.log("[BookmarkButton] doToggle entry. isBookmarked=", isBookmarked, "interestId=", interestId)
     try {
       // 해제 시도
       if (isBookmarked) {
@@ -83,18 +84,18 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
       }
 
       // 등록 시도
+      console.log("[BookmarkButton] add path. local state:", { isBookmarked, interestId })
       try {
         const res = await addBookmark(route, currentToken)
         setInterestId(res.data.interestId)
         setIsBookmarked(true)
         toast({ title: "관심노선이 설정되었습니다." })
       } catch (err) {
-        // 이미 등록된 케이스를 우아하게 처리: UI는 등록 상태로 동기화 (id는 모름)
-        if (
-          err instanceof ApiError &&
-          err.status === 400 &&
-          err.message.includes("이미")
-        ) {
+        // 이미 등록된 케이스를 우아하게 처리. HMR 등으로 instanceof가 깨질 수 있어서
+        // 객체 형태로 status/message만 검사한다.
+        const status = (err as { status?: number })?.status
+        const message = (err as { message?: string })?.message ?? ""
+        if (status === 400 && message.includes("이미")) {
           setIsBookmarked(true)
           setInterestId(null)
           toast({
