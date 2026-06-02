@@ -70,20 +70,29 @@ export default async function SearchResultsPage({
   let totalResults = mockTotalResults
   let predict: ApiPredict = { decision: "WAIT" }
   let forecast: PriceForecast | undefined
+  let apiError: string | null = null
 
-  try {
-    const result = await searchFlights(
-      { departureCode, arrivalCode, departureAt, nonstopOnly, maxPrice, sort },
-      token
-    )
-    flights = result.data.flightList.map((item, i) =>
-      mapApiItemToFlight(item, i, departureCode, arrivalCode)
-    )
-    totalResults = result.data.totalCount
-    predict = result.data.predict
-    forecast = result.data.priceForecast
-  } catch {
-    // API 실패 시 mock 데이터/기본값 유지
+  if (!token) {
+    apiError = "API_TOKEN 환경변수가 비어있습니다. .env.local에 토큰을 넣고 dev 서버를 재시작해주세요."
+    console.warn("[search/page] " + apiError)
+  } else {
+    try {
+      const result = await searchFlights(
+        { departureCode, arrivalCode, departureAt, nonstopOnly, maxPrice, sort },
+        token
+      )
+      flights = result.data.flightList.map((item, i) =>
+        mapApiItemToFlight(item, i, departureCode, arrivalCode)
+      )
+      totalResults = result.data.totalCount
+      predict = result.data.predict
+      forecast = result.data.priceForecast
+    } catch (err) {
+      apiError =
+        err instanceof Error ? err.message : "항공권 조회 API 호출에 실패했습니다."
+      console.error("[search/page] flight search failed:", err)
+      // mock 데이터로 폴백 — 에러 메시지는 UI에 표시
+    }
   }
 
   const route = { departureCode, arrivalCode, departureAt, nonstopOnly }
@@ -109,6 +118,14 @@ export default async function SearchResultsPage({
   return (
     <main className="min-h-screen bg-background pt-14">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* API 폴백 시 경고 배너 (mock 데이터 사용 중) */}
+        {apiError && (
+          <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
+            <strong className="font-semibold">⚠️ 항공권 조회 API 실패</strong> — mock
+            데이터로 표시 중입니다. 원인: {apiError}
+          </div>
+        )}
+
         {/* 검색 조건 요약 + 관심노선/알림 토글 */}
         <SearchSummaryBar searchParams={displaySearchParams} route={route} />
 
