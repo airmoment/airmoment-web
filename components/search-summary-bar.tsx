@@ -12,9 +12,9 @@ export function SearchSummaryBar({ searchParams }: SearchSummaryBarProps) {
   const [directOnly, setDirectOnly] = useState(searchParams.directOnly)
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-white px-4 py-3 shadow-sm">
+    <div className="flex items-center justify-between gap-4 overflow-x-auto rounded-xl bg-white px-4 py-3 shadow-sm">
       {/* 검색 조건 */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2 whitespace-nowrap">
         {/* 출발 */}
         <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
           <span className="text-sm font-medium text-primary">출발</span>
@@ -77,7 +77,7 @@ export function SearchSummaryBar({ searchParams }: SearchSummaryBarProps) {
       </div>
 
       {/* 버튼 그룹 */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-shrink-0 items-center gap-3 whitespace-nowrap">
         {/* 관심노선 버튼 */}
         <button
           type="button"
