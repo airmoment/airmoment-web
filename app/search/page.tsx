@@ -1,15 +1,12 @@
 import { SearchSummaryBar } from "@/components/search-summary-bar"
-import { AIPredictionSection } from "@/components/ai-prediction-section"
+import { DecisionCard } from "@/components/decision-card"
+import { ForecastChartCard } from "@/components/forecast-chart-card"
+import { ExplanationCard } from "@/components/explanation-card"
 import { FlightList } from "@/components/flight-list"
 import {
-  mockSearchParams,
-  mockPricePrediction,
-  mockPredictionFactors,
-  mockPriceDropPeriods,
   mockFlights,
   totalResults as mockTotalResults,
   type Flight,
-  type PricePrediction,
   type SearchParams,
 } from "@/lib/mock-data"
 import {
@@ -17,6 +14,8 @@ import {
   formatDuration,
   formatTime,
   type ApiFlightItem,
+  type ApiPredict,
+  type PriceForecast,
 } from "@/lib/api"
 
 function mapApiItemToFlight(
@@ -51,25 +50,6 @@ function mapApiItemToFlight(
   }
 }
 
-function decisionToPrediction(decision: "BUY" | "WAIT"): PricePrediction {
-  if (decision === "BUY") {
-    return {
-      ...mockPricePrediction,
-      status: "buy",
-      message: "지금 구매하세요!",
-      score: 75,
-      dropProbability: 22,
-    }
-  }
-  return {
-    ...mockPricePrediction,
-    status: "wait",
-    message: "기다리세요!",
-    score: 35,
-    dropProbability: 78,
-  }
-}
-
 export default async function SearchResultsPage({
   searchParams,
 }: {
@@ -88,7 +68,8 @@ export default async function SearchResultsPage({
 
   let flights: Flight[] = mockFlights
   let totalResults = mockTotalResults
-  let prediction: PricePrediction = mockPricePrediction
+  let predict: ApiPredict = { decision: "WAIT" }
+  let forecast: PriceForecast | undefined
 
   try {
     const result = await searchFlights(
@@ -99,9 +80,10 @@ export default async function SearchResultsPage({
       mapApiItemToFlight(item, i, departureCode, arrivalCode)
     )
     totalResults = result.data.totalCount
-    prediction = decisionToPrediction(result.data.predict.decision)
+    predict = result.data.predict
+    forecast = result.data.priceForecast
   } catch {
-    // API 실패 시 mock 데이터 사용
+    // API 실패 시 mock 데이터/기본값 유지
   }
 
   const route = { departureCode, arrivalCode, departureAt, nonstopOnly }
@@ -127,17 +109,26 @@ export default async function SearchResultsPage({
   return (
     <main className="min-h-screen bg-background pt-14">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* 검색 조건 요약 + 관심노선/알림 토글 */}
         <SearchSummaryBar searchParams={displaySearchParams} route={route} />
 
+        {/* ① BUY/WAIT 구매 추천 + 예상 최저가 범위 */}
         <div className="mt-6">
-          <AIPredictionSection
-            prediction={prediction}
-            factors={mockPredictionFactors}
-            dropPeriods={mockPriceDropPeriods}
-          />
+          <DecisionCard predict={predict} forecast={forecast} />
         </div>
 
+        {/* ② 가격 추이 예측 시각화 */}
         <div className="mt-6">
+          <ForecastChartCard forecast={forecast} />
+        </div>
+
+        {/* ③ AI 판단 근거 자연어 설명 */}
+        <div className="mt-6">
+          <ExplanationCard predict={predict} forecast={forecast} />
+        </div>
+
+        {/* 항공권 리스트 */}
+        <div className="mt-8">
           <FlightList flights={flights} totalResults={totalResults} />
         </div>
       </div>
