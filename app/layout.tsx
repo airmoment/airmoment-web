@@ -42,10 +42,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
         />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Nico+Moji&display=swap"
-        />
+        {/* Nico Moji는 Google Fonts에 없어서 public/fonts/ 에 자체 호스팅 (globals.css의 @font-face 참조) */}
       </head>
       <body className="font-sans antialiased">
         <AuthProvider>

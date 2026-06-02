@@ -78,6 +78,25 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/*
+ * 로고용 Nico Moji 자체 호스팅.
+ * - 폰트 파일을 public/fonts/ 아래에 두면 자동으로 로드된다.
+ * - 파일이 없으면 cursive 시스템 폰트로 우아하게 폴백 (dev 빌드 안 깨짐).
+ * - 지원 파일명: nicomoji.woff2, nicomoji.woff, nicomoji.ttf, nicomoji.otf (있는 것만 로드)
+ * - 라이선스: 본인이 직접 폰트 파일 다운로드 후 라이선스 확인.
+ */
+@font-face {
+  font-family: 'Nico Moji';
+  src:
+    url('/fonts/nicomoji.woff2') format('woff2'),
+    url('/fonts/nicomoji.woff') format('woff'),
+    url('/fonts/nicomoji.ttf') format('truetype'),
+    url('/fonts/nicomoji.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   --font-logo: 'Nico Moji', cursive;
