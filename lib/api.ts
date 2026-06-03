@@ -216,7 +216,7 @@ export async function removeBookmark(
   token: string
 ): Promise<ApiEnvelope<null>> {
   return request<null>(
-    `/api/v1/interests/${interestId}`,
+    `/api/v1/interests/bookmark/${interestId}`,
     { method: "DELETE" },
     token
   )
