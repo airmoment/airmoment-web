@@ -38,13 +38,26 @@ export function HomeSearchBar() {
   const [arrival, setArrival] = useState<Destination | null>(null)
   const [arrivalOpen, setArrivalOpen] = useState(false)
 
-  const canSearch = Boolean(arrival)
-  const searchHref =
-    arrival && date
-      ? `/search?departureCode=ICN&arrivalCode=${arrival.code}&departureAt=${toISODate(date)}`
-      : arrival
-        ? `/search?departureCode=ICN&arrivalCode=${arrival.code}`
-        : "#"
+  // 도착지 + 가는 날짜 둘 다 골라야 검색 가능
+  const canSearch = Boolean(arrival && date)
+  const searchHref = canSearch
+    ? `/search?departureCode=ICN&arrivalCode=${arrival!.code}&departureAt=${toISODate(date!)}`
+    : "#"
+
+  // 비활성 상태에서 클릭 시 누락된 항목의 팝오버를 자동으로 열어준다.
+  function handleDisabledClick() {
+    if (!arrival) {
+      setArrivalOpen(true)
+    } else if (!date) {
+      setOpen(true)
+    }
+  }
+
+  const disabledTitle = !arrival
+    ? "도착지를 먼저 선택해주세요"
+    : !date
+      ? "가는 날을 선택해주세요"
+      : ""
 
   return (
     <div className="mt-5 w-full max-w-2xl">
@@ -163,9 +176,9 @@ export function HomeSearchBar() {
         ) : (
           <button
             type="button"
-            onClick={() => setArrivalOpen(true)}
-            title="도착지를 먼저 선택해주세요"
-            aria-label="도착지를 먼저 선택해주세요"
+            onClick={handleDisabledClick}
+            title={disabledTitle}
+            aria-label={disabledTitle}
             className="ml-1 flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-full bg-white/10 opacity-60 sm:ml-2 sm:h-8 sm:w-8"
           >
             <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
