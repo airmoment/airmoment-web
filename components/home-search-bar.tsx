@@ -51,7 +51,7 @@ export function HomeSearchBar() {
       {/* 출발/도착 바 */}
       <div className="flex overflow-hidden rounded-full bg-white shadow-xl shadow-black/10">
         {/* 출발 (고정) */}
-        <div className="flex flex-1 items-center gap-2 px-4 py-2.5">
+        <div className="flex flex-1 items-center gap-5 px-5 py-4">
           <span className="text-sm font-semibold text-[#4D85AA] sm:text-base">출발</span>
           <span className="text-sm text-foreground sm:text-base">인천 ( 대한민국, ICN )</span>
         </div>
@@ -63,7 +63,7 @@ export function HomeSearchBar() {
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="flex flex-1 items-center gap-2 px-4 py-2.5 text-left transition-colors hover:bg-muted/50"
+              className="flex flex-1 items-center gap-5 px-4 py-4 text-left transition-colors hover:bg-muted/50"
             >
               <span className="text-sm font-semibold text-[#4D85AA] sm:text-base">도착</span>
               {arrival ? (
@@ -102,7 +102,7 @@ export function HomeSearchBar() {
       </div>
 
       {/* 옵션 바 */}
-      <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-[#3d5a6e] px-4 py-2.5 text-white shadow-lg sm:gap-3 sm:px-6 sm:py-3">
+      <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-[#3d5a6e] px-4 py-2.5 text-white shadow-lg sm:gap-5 sm:px-3 sm:py-3">
         {/* 승객 */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <User className="h-4 w-4 sm:h-5 sm:w-5" />
