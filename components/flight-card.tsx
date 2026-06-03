@@ -1,24 +1,27 @@
 "use client"
 
 import { useState } from "react"
-import { Star, Plane } from "lucide-react"
+import { Plane } from "lucide-react"
 import type { Flight } from "@/lib/mock-data"
 import { formatPrice } from "@/lib/mock-data"
+import { getAirlineColor, getAirlineLogoUrl } from "@/lib/airline-logos"
 
 interface FlightCardProps {
   flight: Flight
 }
 
 export function FlightCard({ flight }: FlightCardProps) {
+  const airlineColor = getAirlineColor(flight.airline.name)
+
   return (
     <div className="rounded-xl border border-border bg-white p-4 transition-shadow hover:shadow-md">
       <div className="flex flex-wrap items-center gap-4 lg:gap-6">
         {/* 항공사 정보 */}
-        <div className="flex min-w-[120px] items-center gap-3">
+        <div className="flex min-w-[140px] items-center gap-3">
           <AirlineLogo flight={flight} />
           <span
-            className="text-lg font-semibold"
-            style={{ color: flight.airline.color }}
+            className="text-base font-semibold"
+            style={{ color: airlineColor }}
           >
             {flight.airline.name}
           </span>
@@ -56,42 +59,52 @@ export function FlightCard({ flight }: FlightCardProps) {
 
 /**
  * 항공사 로고. 우선순위:
- *   1) photo URL이 있고 정상 로드 → <img>
- *   2) logo === "star" → 별 아이콘
- *   3) 그 외 → 비행기 아이콘
- * 이미지 로드 실패 시 자동으로 아이콘 폴백.
+ *   1) 매핑 테이블 → Daisycon CDN (IATA 코드 기반)
+ *   2) 백엔드의 airlinePhoto
+ *   3) 비행기 아이콘 (color 적용)
+ * 이미지 로드 실패하면 다음 단계로 자동 폴백.
  */
 function AirlineLogo({ flight }: { flight: Flight }) {
-  const [imgFailed, setImgFailed] = useState(false)
-  const hasPhoto = Boolean(flight.airline.photo) && !imgFailed
+  const [primaryFailed, setPrimaryFailed] = useState(false)
+  const [secondaryFailed, setSecondaryFailed] = useState(false)
 
-  if (hasPhoto) {
+  const mappedUrl = getAirlineLogoUrl(flight.airline.name)
+  const fallbackUrl = flight.airline.photo
+
+  const urlToShow = !primaryFailed
+    ? mappedUrl
+    : !secondaryFailed
+      ? fallbackUrl
+      : undefined
+
+  const isPrimary = !primaryFailed && Boolean(mappedUrl)
+
+  if (urlToShow) {
     return (
       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted/30">
         <img
-          src={flight.airline.photo}
+          src={urlToShow}
           alt={flight.airline.name}
           className="h-9 w-9 object-contain"
-          onError={() => setImgFailed(true)}
+          onError={() => {
+            if (isPrimary) setPrimaryFailed(true)
+            else setSecondaryFailed(true)
+          }}
         />
       </div>
     )
   }
 
-  if (flight.airline.logo === "star") {
-    return (
-      <Star
-        className="h-6 w-6 flex-shrink-0"
-        style={{ color: flight.airline.color }}
-        fill={flight.airline.color}
-      />
-    )
-  }
-
+  // 최종 폴백: 컬러 적용된 비행기 아이콘
   return (
-    <Plane
-      className="h-6 w-6 flex-shrink-0"
-      style={{ color: flight.airline.color }}
-    />
+    <div
+      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+      style={{ backgroundColor: `${getAirlineColor(flight.airline.name)}15` }}
+    >
+      <Plane
+        className="h-5 w-5"
+        style={{ color: getAirlineColor(flight.airline.name) }}
+      />
+    </div>
   )
 }
