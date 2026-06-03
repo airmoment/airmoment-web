@@ -1,4 +1,16 @@
-const BASE_URL = "http://15.165.123.108:8080"
+/**
+ * 호출 컨텍스트별 base URL.
+ * - 서버 사이드(SSR/RSC): 백엔드로 직접. HTTP라도 서버→서버 호출은 막힐 일 없음.
+ * - 클라이언트(브라우저): /api/proxy 로 보내서 Next.js 라우트가 백엔드로 패스스루.
+ *   → 배포 환경(HTTPS)에서도 Mixed Content 차단 안 됨.
+ */
+function getBaseUrl(): string {
+  if (typeof window === "undefined") {
+    return "http://15.165.123.108:8080"
+  }
+  return "/api/proxy"
+}
+
 const TOKEN_KEY = "airmoment.accessToken"
 const USER_KEY = "airmoment.user"
 
@@ -46,7 +58,7 @@ async function request<T>(
 
   let res: Response
   try {
-    res = await fetch(`${BASE_URL}${path}`, {
+    res = await fetch(`${getBaseUrl()}${path}`, {
       ...init,
       headers,
       cache: "no-store",
