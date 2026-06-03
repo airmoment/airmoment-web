@@ -21,7 +21,10 @@ export interface Flight {
     code: string
   }
   date: string
+  /** 표시용 문자열 (예: "10시간 15분"). 정렬·계산엔 durationMinutes 사용. */
   duration: string
+  /** 정렬용 원시 값 (분 단위). 없으면 클라이언트 정렬에서 비행시간 옵션은 작동 안 함. */
+  durationMinutes?: number
   price: number
   tripType: "편도" | "왕복"
 }

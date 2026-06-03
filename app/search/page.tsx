@@ -45,6 +45,7 @@ function mapApiItemToFlight(
     },
     date: "",
     duration: formatDuration(item.duration),
+    durationMinutes: item.duration,
     price: item.price,
     tripType: "편도",
   }
