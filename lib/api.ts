@@ -21,10 +21,15 @@ class ApiError extends Error {
   }
 }
 
+/** 기본 fetch 타임아웃 (ms). 항공권 조회처럼 외부 API에 의존하는 호출은
+ *  꽤 오래 걸릴 수 있어 넉넉히 15초로 두지만, 무한 대기는 막는다. */
+const DEFAULT_TIMEOUT_MS = 15_000
+
 async function request<T>(
   path: string,
   init: RequestInit = {},
-  token?: string | null
+  token?: string | null,
+  options: { timeoutMs?: number } = {}
 ): Promise<ApiEnvelope<T>> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -32,11 +37,31 @@ async function request<T>(
   }
   if (token) headers.Authorization = `Bearer ${token}`
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    headers,
-    cache: "no-store",
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? DEFAULT_TIMEOUT_MS
+  )
+
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...init,
+      headers,
+      cache: "no-store",
+      signal: controller.signal,
+    })
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new ApiError(
+        408,
+        `요청 시간 초과 (${options.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms). 백엔드 응답이 지연되고 있어요.`
+      )
+    }
+    throw err
+  }
+  clearTimeout(timeoutId)
 
   let body: ApiEnvelope<T> | null = null
   try {
