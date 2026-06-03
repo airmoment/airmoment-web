@@ -31,7 +31,9 @@ export default function SearchLoading() {
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          최대 15초 정도 걸릴 수 있어요.
+          외부 항공권 데이터 조회 중이라 1~2분 정도 걸릴 수 있어요.
+          <br />
+          잠시만 기다려주세요.
         </p>
       </div>
     </main>

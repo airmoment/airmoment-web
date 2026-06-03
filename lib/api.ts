@@ -22,8 +22,9 @@ class ApiError extends Error {
 }
 
 /** 기본 fetch 타임아웃 (ms). 항공권 조회처럼 외부 API에 의존하는 호출은
- *  꽤 오래 걸릴 수 있어 넉넉히 15초로 두지만, 무한 대기는 막는다. */
-const DEFAULT_TIMEOUT_MS = 15_000
+ *  현재 백엔드 응답이 1분 이상 걸리는 경우가 있어 진단 목적으로 2분까지 허용.
+ *  백엔드가 안정화되면 15~30초로 줄이는 것을 권장. */
+const DEFAULT_TIMEOUT_MS = 120_000
 
 async function request<T>(
   path: string,
