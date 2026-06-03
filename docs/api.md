@@ -509,7 +509,7 @@ email(id), password로 로그인을 진행하는 POST API. 성공 시 `accessTok
 ---
 ## 5. 관심 노선 해제
 
-**`DELETE /api/v1/interests/{interestId}`**
+**`DELETE /api/v1/interests/bookmark/{interestId}`**
 
 - **백엔드 상태:** ✅ 배포 완료
 - **프론트 연동:** 🟦 API 연동 중
