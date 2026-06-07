@@ -39,9 +39,14 @@ export function FlightCard({ flight }: FlightCardProps) {
           <span className="ml-2 text-sm text-muted-foreground">{flight.date}</span>
         </div>
 
-        {/* 소요 시간 + 직항/경유 배지 */}
-        <div className="flex items-center gap-2">
+        {/* 소요 시간 */}
+        <div className="flex items-center">
           <span className="text-foreground">{flight.duration}</span>
+          <span className="ml-4 text-muted-foreground">- - - - - - -</span>
+        </div>
+
+        {/* 가격 + 직항/경유 배지 (편도 라벨 자리 대체) */}
+        <div className="ml-auto flex items-center gap-2">
           {flight.isDirect === true && (
             <span className="rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-xs font-medium text-primary">
               직항
@@ -55,12 +60,6 @@ export function FlightCard({ flight }: FlightCardProps) {
               경유
             </span>
           )}
-          <span className="ml-2 text-muted-foreground">- - - - - - -</span>
-        </div>
-
-        {/* 가격 */}
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{flight.tripType}</span>
           <span className="text-xl font-bold text-red-500">
             ₩{formatPrice(flight.price)}
           </span>
