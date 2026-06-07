@@ -39,12 +39,20 @@ export function FlightCard({ flight }: FlightCardProps) {
           <span className="ml-2 text-sm text-muted-foreground">{flight.date}</span>
         </div>
 
-        {/* 소요 시간 + 직항 배지 */}
+        {/* 소요 시간 + 직항/경유 배지 */}
         <div className="flex items-center gap-2">
           <span className="text-foreground">{flight.duration}</span>
-          {flight.isDirect && (
+          {flight.isDirect === true && (
             <span className="rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-xs font-medium text-primary">
               직항
+            </span>
+          )}
+          {flight.isDirect === false && (
+            <span
+              className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-xs font-medium text-muted-foreground"
+              title="비행시간이 길어 경유로 추정됩니다"
+            >
+              경유
             </span>
           )}
           <span className="ml-2 text-muted-foreground">- - - - - - -</span>

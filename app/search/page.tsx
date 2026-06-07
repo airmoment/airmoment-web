@@ -18,6 +18,29 @@ import {
   type PriceForecast,
 } from "@/lib/api"
 
+/**
+ * 결과 셋의 비행시간 분포로 각 항공권의 직항/경유 추정.
+ * - nonstopOnly 검색 결과면 모두 직항(백엔드가 직항만 보냄)
+ * - 그 외엔 최단 비행시간 + 90분 이내면 직항으로 가정
+ * - 백엔드가 항공권별 isDirect 필드 추가하면 이 함수는 제거하고 응답값 그대로 사용
+ */
+function inferDirectness(flights: Flight[], allDirect: boolean): Flight[] {
+  if (allDirect) {
+    return flights.map((f) => ({ ...f, isDirect: true }))
+  }
+  const durations = flights
+    .map((f) => f.durationMinutes)
+    .filter((d): d is number => d !== undefined)
+  if (durations.length === 0) return flights
+  const minDuration = Math.min(...durations)
+  const directThreshold = minDuration + 90 // 1.5시간 이내면 직항으로 본다
+  return flights.map((f) => ({
+    ...f,
+    isDirect:
+      f.durationMinutes !== undefined && f.durationMinutes <= directThreshold,
+  }))
+}
+
 function mapApiItemToFlight(
   item: ApiFlightItem,
   index: number,
@@ -84,11 +107,10 @@ export default async function SearchResultsPage({
         { departureCode, arrivalCode, departureAt, nonstopOnly, maxPrice, sort },
         token
       )
-      flights = result.data.flightList.map((item, i) =>
-        // 검색 조건이 직항만이면 백엔드가 직항만 보내준 거니까 isDirect=true로 마킹.
-        // 백엔드가 항공권별 직항 정보 필드를 추가하기 전까지의 임시 처리.
-        mapApiItemToFlight(item, i, departureCode, arrivalCode, nonstopOnly || undefined)
+      const rawFlights = result.data.flightList.map((item, i) =>
+        mapApiItemToFlight(item, i, departureCode, arrivalCode)
       )
+      flights = inferDirectness(rawFlights, nonstopOnly)
       totalResults = result.data.totalCount
       predict = result.data.predict
       forecast = result.data.priceForecast
