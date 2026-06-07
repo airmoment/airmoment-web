@@ -1,6 +1,30 @@
 "use client"
 
-import { Armchair, User, Calendar, PlaneTakeoff, CheckSquare, Square } from "lucide-react"
+import { User, Calendar, PlaneTakeoff, CheckSquare, Square } from "lucide-react"
+
+/**
+ * 비행기 좌석 아이콘 (side view).
+ * 헤드레스트가 있는 높은 등받이 + 앞으로 약간 튀어나오는 좌석 쿠션.
+ * lucide에 항공 좌석 전용 아이콘이 없어서 직접 만든 SVG.
+ */
+function PlaneSeatIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* 등받이 + 헤드레스트 (윗부분 둥글게) */}
+      <path d="M8 17V6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v11" />
+      {/* 좌석 쿠션 (앞으로 확장, 살짝 사다리꼴) */}
+      <path d="M8 17h11l-1 3H9l-1-3z" />
+    </svg>
+  )
+}
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import type { SearchParams } from "@/lib/mock-data"
 import type { InterestBody } from "@/lib/api"
@@ -61,7 +85,7 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
 
         {/* 좌석 */}
         <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
-          <Armchair className="h-4 w-4 text-muted-foreground" />
+          <PlaneSeatIcon className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-foreground">{searchParams.seatClass}</span>
         </div>
 
