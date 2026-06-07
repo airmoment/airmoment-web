@@ -25,8 +25,9 @@ interface PriceBandChartProps {
 }
 
 const PRIMARY = "#4a6d87"
-const PRIMARY_BAND_OUTER = "rgba(74, 109, 135, 0.12)"
-const PRIMARY_BAND_INNER = "rgba(74, 109, 135, 0.25)"
+// 80% 구간은 아주 옅게, 50% 구간은 진하게 — 투명도 차를 크게 줘서 한눈에 구분.
+const PRIMARY_BAND_OUTER = "rgba(74, 109, 135, 0.08)"
+const PRIMARY_BAND_INNER = "rgba(74, 109, 135, 0.38)"
 
 function formatTick(day: number) {
   if (day === 0) return "현재(지금)"
@@ -161,8 +162,8 @@ export function PriceBandChart({
 
       {/* 범례 */}
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <Legend swatchClassName="bg-[#4a6d87]/12" label="80% 예측 구간 (q10–q90)" />
-        <Legend swatchClassName="bg-[#4a6d87]/25" label="50% 예측 구간 (q25–q75)" />
+        <Legend swatchClassName="bg-[#4a6d87]/10" label="80% 예측 구간 (q10–q90)" />
+        <Legend swatchClassName="bg-[#4a6d87]/40" label="50% 예측 구간 (q25–q75)" />
         <Legend dot label="중앙값 예측 (q50)" />
         {currentPrice !== undefined && (
           <Legend solidDot label={`현재가 ${formatKrw(currentPrice)}`} />
