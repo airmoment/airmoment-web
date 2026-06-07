@@ -43,6 +43,80 @@ function formatManTick(v: number) {
   return `${Math.round(v / 10000)}만`
 }
 
+/**
+ * 차트 포인트에 마우스 올렸을 때 뜨는 툴팁.
+ * 날짜를 헤더로, 중앙값을 강조해서, 보조 정보(범위)는 작게.
+ * day=0 (현재)은 모든 분위수가 같으므로 "현재가" 한 줄로 단순화.
+ */
+function CustomTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{ name: string; value: number | [number, number] }>
+  label?: number
+}) {
+  if (!active || !payload || payload.length === 0) return null
+
+  const median = payload.find((p) => p.name === "중앙값 예측")?.value as
+    | number
+    | undefined
+  const band50 = payload.find((p) => p.name === "50% 예측 구간")?.value as
+    | [number, number]
+    | undefined
+  const band80 = payload.find((p) => p.name === "80% 예측 구간")?.value as
+    | [number, number]
+    | undefined
+
+  const isNow = label === 0
+
+  return (
+    <div className="rounded-lg border border-border bg-white px-3 py-2.5 text-xs shadow-md">
+      <div className="mb-1.5 text-sm font-semibold text-foreground">
+        {label !== undefined ? formatTick(label) : ""}
+      </div>
+
+      {isNow ? (
+        // 현재가 — 한 줄만
+        <div className="flex items-baseline gap-2">
+          <span className="text-muted-foreground">현재가</span>
+          <span className="text-sm font-semibold text-primary">
+            {median !== undefined ? formatKrw(median) : "-"}
+          </span>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {median !== undefined && (
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-muted-foreground">중앙값 예측</span>
+              <span className="text-sm font-semibold text-primary">
+                {formatKrw(median)}
+              </span>
+            </div>
+          )}
+          {band50 && (
+            <div className="flex items-baseline justify-between gap-3 text-muted-foreground">
+              <span>50% 범위</span>
+              <span className="text-foreground">
+                {formatKrw(band50[0])} ~ {formatKrw(band50[1])}
+              </span>
+            </div>
+          )}
+          {band80 && (
+            <div className="flex items-baseline justify-between gap-3 text-muted-foreground">
+              <span>80% 범위</span>
+              <span className="text-foreground">
+                {formatKrw(band80[0])} ~ {formatKrw(band80[1])}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function PriceBandChart({
   predictions,
   decisionLabel,
@@ -97,20 +171,7 @@ export function PriceBandChart({
               tickLine={false}
               width={40}
             />
-            <Tooltip
-              formatter={(value: number | [number, number], name: string) => {
-                if (Array.isArray(value)) {
-                  return [`${formatKrw(value[0])} ~ ${formatKrw(value[1])}`, name]
-                }
-                return [formatKrw(value as number), name]
-              }}
-              labelFormatter={(label: number) => formatTick(label)}
-              contentStyle={{
-                borderRadius: 8,
-                border: "1px solid #e5e7eb",
-                fontSize: 12,
-              }}
-            />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#cbd5e1", strokeWidth: 1 }} />
 
             {/* 80% 구간 (q10~q90) */}
             <Area
