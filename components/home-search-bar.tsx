@@ -6,6 +6,12 @@ import Link from "next/link"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Calendar as CalendarPicker } from "@/components/ui/calendar"
 import { toast } from "@/hooks/use-toast"
+import {
+  DESTINATIONS,
+  formatDateDisplay,
+  toISODate,
+  type Destination,
+} from "@/lib/destinations"
 
 /** 비활성 옵션 공통 스타일 — 흐릿한 색 + 점선 테두리. */
 const DISABLED_OPTION =
@@ -19,32 +25,6 @@ function showLocked(field: string, support: string) {
   })
 }
 
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"]
-
-interface Destination {
-  city: string
-  country: string
-  code: string
-  /** 드롭다운에서만 보여주는 정식 공항명. 메인 알약엔 표시 X. */
-  airport: string
-}
-
-const DESTINATIONS: Destination[] = [
-  { city: "파리", country: "프랑스", code: "CDG", airport: "샤를 드골 국제공항" },
-  { city: "뉴욕", country: "미국", code: "JFK", airport: "존 F. 케네디 국제공항" },
-  { city: "시드니", country: "호주", code: "SYD", airport: "킹스포드 스미스 공항" },
-]
-
-function formatDateDisplay(date: Date): string {
-  return `${date.getMonth() + 1}.${date.getDate()}.${WEEKDAYS[date.getDay()]}`
-}
-
-function toISODate(date: Date): string {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, "0")
-  const d = String(date.getDate()).padStart(2, "0")
-  return `${y}-${m}-${d}`
-}
 
 export function HomeSearchBar() {
   const [date, setDate] = useState<Date | undefined>(undefined)
