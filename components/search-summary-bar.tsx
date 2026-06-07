@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Calendar, PlaneTakeoff, CheckSquare, Square } from "lucide-react"
+import { Armchair, User, Calendar, PlaneTakeoff, CheckSquare, Square } from "lucide-react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import type { SearchParams } from "@/lib/mock-data"
 import type { InterestBody } from "@/lib/api"
@@ -61,13 +61,7 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
 
         {/* 좌석 */}
         <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
-          <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 18V9a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v9" />
-            <path d="M4 13h5" />
-            <path d="M15 18V9a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v9" />
-            <path d="M15 13h5" />
-            <path d="M2 18h20" />
-          </svg>
+          <Armchair className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-foreground">{searchParams.seatClass}</span>
         </div>
 
