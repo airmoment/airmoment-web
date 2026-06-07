@@ -25,12 +25,14 @@ interface Destination {
   city: string
   country: string
   code: string
+  /** 드롭다운에서만 보여주는 정식 공항명. 메인 알약엔 표시 X. */
+  airport: string
 }
 
 const DESTINATIONS: Destination[] = [
-  { city: "파리", country: "프랑스", code: "CDG" },
-  { city: "뉴욕", country: "미국", code: "JFK" },
-  { city: "시드니", country: "호주", code: "SYD" },
+  { city: "파리", country: "프랑스", code: "CDG", airport: "샤를 드골 국제공항" },
+  { city: "뉴욕", country: "미국", code: "JFK", airport: "존 F. 케네디 국제공항" },
+  { city: "시드니", country: "호주", code: "SYD", airport: "킹스포드 스미스 공항" },
 ]
 
 function formatDateDisplay(date: Date): string {
@@ -110,7 +112,7 @@ export function HomeSearchBar() {
               )}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-1" align="end" sideOffset={12}>
+          <PopoverContent className="w-64 p-1" align="end" sideOffset={12}>
             {DESTINATIONS.map((dest) => (
               <button
                 key={dest.code}
@@ -119,14 +121,17 @@ export function HomeSearchBar() {
                   setArrival(dest)
                   setArrivalOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted ${
+                className={`flex w-full flex-col items-start rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted ${
                   arrival?.code === dest.code
                     ? "bg-muted font-medium text-[#4D85AA]"
                     : "text-foreground"
                 }`}
               >
-                <span>
+                <span className="text-sm">
                   {dest.city} ({dest.country}, {dest.code})
+                </span>
+                <span className="mt-0.5 text-xs text-muted-foreground">
+                  {dest.airport}
                 </span>
               </button>
             ))}
