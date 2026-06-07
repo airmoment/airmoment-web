@@ -25,10 +25,10 @@ interface PriceBandChartProps {
 }
 
 const PRIMARY = "#4a6d87"
-// 80% 구간은 옅은 파랑(브랜드 컬러), 50% 구간은 따뜻한 앰버 — 차가운 색 위 따뜻한 색
+// 80% 구간은 옅은 파랑(브랜드 컬러), 50% 구간은 따뜻한 핑크 — 차가운 색 위 따뜻한 색
 // 조합으로 색맹 사용자에게도 명확히 구분되도록.
 const PRIMARY_BAND_OUTER = "rgba(74, 109, 135, 0.12)" // 옅은 파랑
-const PRIMARY_BAND_INNER = "rgba(245, 158, 11, 0.32)" // amber-500
+const PRIMARY_BAND_INNER = "rgba(244, 114, 182, 0.30)" // pink-400
 
 function formatTick(day: number) {
   if (day === 0) return "현재(지금)"
@@ -164,7 +164,7 @@ export function PriceBandChart({
       {/* 범례 */}
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <Legend swatchClassName="bg-[#4a6d87]/15" label="80% 예측 구간 (q10–q90)" />
-        <Legend swatchClassName="bg-amber-500/35" label="50% 예측 구간 (q25–q75)" />
+        <Legend swatchClassName="bg-pink-400/35" label="50% 예측 구간 (q25–q75)" />
         <Legend dot label="중앙값 예측 (q50)" />
         {currentPrice !== undefined && (
           <Legend solidDot label={`현재가 ${formatKrw(currentPrice)}`} />
