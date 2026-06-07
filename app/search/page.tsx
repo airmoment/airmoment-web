@@ -22,7 +22,8 @@ function mapApiItemToFlight(
   item: ApiFlightItem,
   index: number,
   departureCode: string,
-  arrivalCode: string
+  arrivalCode: string,
+  isDirect?: boolean
 ): Flight {
   return {
     id: String(index),
@@ -48,6 +49,7 @@ function mapApiItemToFlight(
     durationMinutes: item.duration,
     price: item.price,
     tripType: "편도",
+    isDirect,
   }
 }
 
@@ -83,7 +85,9 @@ export default async function SearchResultsPage({
         token
       )
       flights = result.data.flightList.map((item, i) =>
-        mapApiItemToFlight(item, i, departureCode, arrivalCode)
+        // 검색 조건이 직항만이면 백엔드가 직항만 보내준 거니까 isDirect=true로 마킹.
+        // 백엔드가 항공권별 직항 정보 필드를 추가하기 전까지의 임시 처리.
+        mapApiItemToFlight(item, i, departureCode, arrivalCode, nonstopOnly || undefined)
       )
       totalResults = result.data.totalCount
       predict = result.data.predict

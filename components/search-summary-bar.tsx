@@ -1,7 +1,7 @@
 "use client"
 
 import { User, Calendar, PlaneTakeoff, CheckSquare, Square } from "lucide-react"
-import { useState } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import type { SearchParams } from "@/lib/mock-data"
 import type { InterestBody } from "@/lib/api"
 import { BookmarkButton } from "@/components/bookmark-button"
@@ -14,7 +14,18 @@ interface SearchSummaryBarProps {
 }
 
 export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps) {
-  const [directOnly, setDirectOnly] = useState(searchParams.directOnly)
+  const router = useRouter()
+  const pathname = usePathname()
+  const urlParams = useSearchParams()
+  // 토글 상태는 URL이 진실. prop으로 받은 directOnly가 곧 URL의 nonstopOnly 반영본.
+  const directOnly = searchParams.directOnly
+
+  function toggleDirectOnly() {
+    const next = new URLSearchParams(urlParams.toString())
+    if (directOnly) next.delete("nonstopOnly")
+    else next.set("nonstopOnly", "true")
+    router.push(`${pathname}?${next.toString()}`)
+  }
 
   return (
     <div className="flex items-center justify-between gap-4 overflow-x-auto rounded-xl bg-white px-4 py-3 shadow-sm">
@@ -66,18 +77,26 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
           <span className="text-sm text-foreground">{searchParams.tripType}</span>
         </div>
 
-        {/* 직항만 체크박스 */}
+        {/* 직항만 체크박스 — 클릭 시 URL의 nonstopOnly 토글하고 페이지 재조회 */}
         <button
           type="button"
-          onClick={() => setDirectOnly(!directOnly)}
-          className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 transition-colors hover:bg-muted/50"
+          onClick={toggleDirectOnly}
+          className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors ${
+            directOnly
+              ? "border-primary bg-primary/5 hover:bg-primary/10"
+              : "border-border hover:bg-muted/50"
+          }`}
         >
           {directOnly ? (
             <CheckSquare className="h-4 w-4 text-primary" />
           ) : (
             <Square className="h-4 w-4 text-muted-foreground" />
           )}
-          <span className="text-sm text-foreground">직항만</span>
+          <span
+            className={`text-sm ${directOnly ? "font-medium text-primary" : "text-foreground"}`}
+          >
+            직항만
+          </span>
         </button>
       </div>
 

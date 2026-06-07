@@ -39,10 +39,15 @@ export function FlightCard({ flight }: FlightCardProps) {
           <span className="ml-2 text-sm text-muted-foreground">{flight.date}</span>
         </div>
 
-        {/* 소요 시간 */}
-        <div className="flex items-center">
+        {/* 소요 시간 + 직항 배지 */}
+        <div className="flex items-center gap-2">
           <span className="text-foreground">{flight.duration}</span>
-          <span className="ml-4 text-muted-foreground">- - - - - - -</span>
+          {flight.isDirect && (
+            <span className="rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-xs font-medium text-primary">
+              직항
+            </span>
+          )}
+          <span className="ml-2 text-muted-foreground">- - - - - - -</span>
         </div>
 
         {/* 가격 */}

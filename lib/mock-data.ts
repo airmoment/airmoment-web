@@ -27,6 +27,9 @@ export interface Flight {
   durationMinutes?: number
   price: number
   tripType: "편도" | "왕복"
+  /** 직항 여부. 현재 백엔드가 항공권별 직항 정보를 안 줘서, 검색 조건이
+   *  nonstopOnly=true 일 때만 true로 채워준다. (다른 경우엔 undefined → 표시 안 함) */
+  isDirect?: boolean
 }
 
 export interface PricePrediction {
