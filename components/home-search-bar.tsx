@@ -5,6 +5,19 @@ import { User, Calendar, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Calendar as CalendarPicker } from "@/components/ui/calendar"
+import { toast } from "@/hooks/use-toast"
+
+/** 비활성 옵션 공통 스타일 — 흐릿한 색 + 점선 테두리. */
+const DISABLED_OPTION =
+  "cursor-not-allowed border-dashed border-white/30 text-white/60 opacity-70"
+
+/** 비활성 옵션 클릭 시 동일한 안내 토스트를 띄운다. */
+function showLocked(field: string, support: string) {
+  toast({
+    title: `${field}은(는) 아직 선택할 수 없어요`,
+    description: `현재 ${support}만 지원됩니다.`,
+  })
+}
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"]
 
@@ -63,11 +76,18 @@ export function HomeSearchBar() {
     <div className="mt-5 w-full max-w-2xl">
       {/* 출발/도착 바 */}
       <div className="flex overflow-hidden rounded-full bg-white shadow-xl shadow-black/10">
-        {/* 출발 (고정) */}
-        <div className="flex flex-1 items-center justify-center gap-5 px-2 py-2">
+        {/* 출발 (고정 — 인천만 지원) */}
+        <button
+          type="button"
+          onClick={() => showLocked("출발지", "인천(ICN) 출발")}
+          title="출발지는 현재 인천(ICN)만 지원돼요"
+          className="flex flex-1 cursor-not-allowed items-center justify-center gap-5 px-2 py-2"
+        >
           <span className="text-sm font-semibold text-[#4D85AA] sm:text-base">출발</span>
-          <span className="text-sm text-foreground sm:text-base">인천 ( 대한민국, ICN )</span>
-        </div>
+          <span className="text-sm text-foreground/60 sm:text-base">
+            인천 ( 대한민국, ICN )
+          </span>
+        </button>
 
         <div className="my-2 w-px bg-border" />
 
@@ -116,15 +136,20 @@ export function HomeSearchBar() {
 
       {/* 옵션 바 */}
       <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-[#3d5a6e] px-4 py-2.5 text-white shadow-lg sm:gap-5 sm:px-3 sm:py-3">
-        {/* 승객 */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <User className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="text-xs sm:text-sm">승객</span>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-white/60 text-xs sm:h-6 sm:w-6 sm:text-sm">
+        {/* 승객 (비활성) */}
+        <button
+          type="button"
+          onClick={() => showLocked("승객 수", "1명")}
+          title="승객 수는 아직 선택할 수 없어요"
+          className="flex cursor-not-allowed items-center gap-1.5 rounded-full opacity-70 sm:gap-2"
+        >
+          <User className="h-4 w-4 text-white/70 sm:h-5 sm:w-5" />
+          <span className="text-xs text-white/70 sm:text-sm">승객</span>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-white/30 text-xs text-white/60 sm:h-6 sm:w-6 sm:text-sm">
             1
           </span>
-          <span className="text-xs sm:text-sm">명</span>
-        </div>
+          <span className="text-xs text-white/70 sm:text-sm">명</span>
+        </button>
 
         {/* 날짜 달력 */}
         <Popover open={open} onOpenChange={setOpen}>
@@ -154,15 +179,25 @@ export function HomeSearchBar() {
           </PopoverContent>
         </Popover>
 
-        {/* 좌석 */}
-        <span className="rounded-full border border-white/60 px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm">
+        {/* 좌석 (비활성) */}
+        <button
+          type="button"
+          onClick={() => showLocked("좌석", "일반석")}
+          title="좌석 선택은 아직 지원하지 않아요"
+          className={`rounded-full border px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm ${DISABLED_OPTION}`}
+        >
           일반석
-        </span>
+        </button>
 
-        {/* 편도 */}
-        <span className="rounded-full border border-white/60 px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm">
+        {/* 편도 (비활성) */}
+        <button
+          type="button"
+          onClick={() => showLocked("왕복 여부", "편도")}
+          title="왕복은 아직 지원하지 않아요"
+          className={`rounded-full border px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm ${DISABLED_OPTION}`}
+        >
           편도
-        </span>
+        </button>
 
         {/* 검색 버튼 — 도착지가 없으면 비활성화 + 클릭 시 도착 팝오버 열기 */}
         {canSearch ? (
