@@ -45,16 +45,16 @@ export function FlightCard({ flight }: FlightCardProps) {
           <span className="ml-4 text-muted-foreground">- - - - - - -</span>
         </div>
 
-        {/* 가격 + 직항/경유 배지 (편도 라벨 자리 대체) */}
+        {/* 가격 + 직항/경유 표시 (편도 라벨 자리 대체) */}
         <div className="ml-auto flex items-center gap-2">
           {flight.isDirect === true && (
-            <span className="rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-xs font-medium text-primary">
+            <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white">
               직항
             </span>
           )}
           {flight.isDirect === false && (
             <span
-              className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-xs font-medium text-muted-foreground"
+              className="text-xs text-muted-foreground"
               title="비행시간이 길어 경유로 추정됩니다"
             >
               경유

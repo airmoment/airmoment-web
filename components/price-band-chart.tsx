@@ -135,6 +135,16 @@ export function PriceBandChart({
   const today = data.find((d) => d.day === 0)
   const currentPrice = today?.q50
 
+  // Y축 범위 — 데이터의 실제 min/max 기반으로 위아래 15% 여유.
+  // 0부터 시작하면 밴드가 납작해 보이므로 줌인.
+  const allValues = predictions.flatMap((p) => [p.q10, p.q90, p.q50])
+  const dataMin = Math.min(...allValues)
+  const dataMax = Math.max(...allValues)
+  const padding = Math.max((dataMax - dataMin) * 0.15, 10000)
+  // 만원 단위로 깔끔하게 라운드
+  const yMin = Math.floor((dataMin - padding) / 10000) * 10000
+  const yMax = Math.ceil((dataMax + padding) / 10000) * 10000
+
   return (
     <div className="w-full">
       {/* 상단 메타 */}
@@ -165,6 +175,7 @@ export function PriceBandChart({
               tickLine={false}
             />
             <YAxis
+              domain={[yMin, yMax]}
               tickFormatter={formatManTick}
               tick={{ fill: "#6b7280", fontSize: 12 }}
               axisLine={false}
