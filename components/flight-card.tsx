@@ -60,44 +60,47 @@ export function FlightCard({ flight }: FlightCardProps) {
           </span>
         </div>
 
-        {/* 시간 ↔ 소요시간 ↔ 시간 묶음 — 중앙 정렬해서 좌우 여백 균형 */}
-        <div className="flex min-w-0 items-center justify-center gap-4">
-          {/* 출발 */}
-          <div className="flex items-baseline gap-1.5">
-            <span className="whitespace-nowrap text-lg font-semibold text-foreground">
-              {flight.departure.time}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {flight.departure.code}
-            </span>
-          </div>
-
-          {/* 소요시간 + 화살표 — 가운데 정렬 */}
-          <div className="flex w-[110px] flex-col items-center text-sm text-muted-foreground">
-            <span className="whitespace-nowrap">{flight.duration}</span>
-            <div className="mt-0.5 flex w-full items-center">
-              <div className="h-px flex-1 bg-border" />
-              <span className="px-1 text-xs">→</span>
-              <div className="h-px flex-1 bg-border" />
+        {/* 시간 묶음 — 내부에 고정폭 sub-grid [출발 | 소요 | 도착] 둬서
+            모든 카드에서 동일한 X 좌표에 정렬되도록 */}
+        <div className="flex min-w-0 items-center justify-center">
+          <div className="grid grid-cols-[100px_130px_100px] items-center gap-3">
+            {/* 출발 — 우측 정렬 (소요시간 쪽으로 붙음) */}
+            <div className="flex items-baseline justify-end gap-1.5">
+              <span className="whitespace-nowrap text-xl font-semibold text-foreground">
+                {flight.departure.time}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {flight.departure.code}
+              </span>
             </div>
-          </div>
 
-          {/* 도착 (+ 다음날 위첨자) */}
-          <div className="flex items-baseline gap-1.5">
-            <span className="whitespace-nowrap text-lg font-semibold text-foreground">
-              {flight.arrival.time}
-              {dayOffset > 0 && (
-                <sup
-                  className="ml-0.5 text-xs font-medium text-primary"
-                  title={`도착 ${dayOffset}일 후`}
-                >
-                  +{dayOffset}
-                </sup>
-              )}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {flight.arrival.code}
-            </span>
+            {/* 소요시간 + 화살표 — 가운데 */}
+            <div className="flex flex-col items-center text-sm text-muted-foreground">
+              <span className="whitespace-nowrap">{flight.duration}</span>
+              <div className="mt-0.5 flex w-full items-center">
+                <div className="h-px flex-1 bg-border" />
+                <span className="px-1 text-xs">→</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+            </div>
+
+            {/* 도착 — 좌측 정렬 (+ 다음날 위첨자) */}
+            <div className="flex items-baseline justify-start gap-1.5">
+              <span className="whitespace-nowrap text-xl font-semibold text-foreground">
+                {flight.arrival.time}
+                {dayOffset > 0 && (
+                  <sup
+                    className="ml-0.5 text-xs font-medium text-primary"
+                    title={`도착 ${dayOffset}일 후`}
+                  >
+                    +{dayOffset}
+                  </sup>
+                )}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {flight.arrival.code}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -116,7 +119,7 @@ export function FlightCard({ flight }: FlightCardProps) {
               경유
             </span>
           )}
-          <span className="whitespace-nowrap text-xl font-bold text-red-500">
+          <span className="whitespace-nowrap text-2xl font-bold text-red-500">
             ₩{formatPrice(flight.price)}
           </span>
         </div>
