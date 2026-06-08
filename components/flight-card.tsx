@@ -75,9 +75,8 @@ export function FlightCard({ flight }: FlightCardProps) {
               </span>
             </div>
 
-            {/* 소요시간 + 화살표 — 좌측 정렬해서 모든 카드의 소요시간 시작점이
-                같은 X 좌표에 떨어지도록. 화살표는 컬럼 폭 전체. */}
-            <div className="flex flex-col items-start text-sm text-muted-foreground">
+            {/* 소요시간 + 화살표 — 가운데 정렬 (텍스트는 중앙, 화살표는 컬럼 폭 전체) */}
+            <div className="flex flex-col items-center text-sm text-muted-foreground">
               <span className="whitespace-nowrap tabular-nums">
                 {flight.duration}
               </span>
