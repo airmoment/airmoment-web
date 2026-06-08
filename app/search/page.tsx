@@ -1,8 +1,10 @@
+import { Suspense } from "react"
 import { SearchSummaryBar } from "@/components/search-summary-bar"
 import { DecisionCard } from "@/components/decision-card"
 import { ForecastChartCard } from "@/components/forecast-chart-card"
 import { ExplanationCard } from "@/components/explanation-card"
 import { FlightList } from "@/components/flight-list"
+import SearchLoading from "./loading"
 import {
   mockFlights,
   totalResults as mockTotalResults,
@@ -76,13 +78,40 @@ function mapApiItemToFlight(
   }
 }
 
+/**
+ * 외부 페이지 컴포넌트 — Suspense 래퍼만 담당.
+ *
+ * 같은 라우트(/search) 내부에서 query 파라미터만 바뀌는 경우
+ * Next.js의 route-level loading.tsx는 발동하지 않는다. 그래서
+ * Suspense의 `key`를 검색 조건 문자열로 묶어, 조건이 달라질 때마다
+ * 내부 컴포넌트가 다시 마운트되며 fallback(SearchLoading)이 뜨도록 한다.
+ */
 export default async function SearchResultsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | undefined>>
 }) {
   const params = await searchParams
+  const key = [
+    params.departureCode ?? "",
+    params.arrivalCode ?? "",
+    params.departureAt ?? "",
+    params.maxPrice ?? "",
+    params.sort ?? "",
+  ].join("|")
 
+  return (
+    <Suspense key={key} fallback={<SearchLoading />}>
+      <SearchResultsContent params={params} />
+    </Suspense>
+  )
+}
+
+async function SearchResultsContent({
+  params,
+}: {
+  params: Record<string, string | undefined>
+}) {
   const departureCode = params.departureCode ?? "ICN"
   const arrivalCode = params.arrivalCode ?? "SYD"
   const departureAt = params.departureAt ?? "2026-06-10"
