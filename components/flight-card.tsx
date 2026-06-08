@@ -17,10 +17,11 @@ export function FlightCard({ flight }: FlightCardProps) {
     <div className="rounded-xl border border-border bg-white p-4 transition-shadow hover:shadow-md">
       {/*
         모바일(기본): flex-wrap 으로 자연스럽게 줄바꿈.
-        sm+ 부터는 grid 4컬럼 — 항공사명 길이와 무관하게 컬럼 정렬이 흐트러지지 않음.
-        [항공사 180px] [시간 1fr] [소요시간 auto] [가격/배지 auto]
+        sm+ 부터는 grid 4컬럼:
+        [항공사 180px] [시간 auto] [소요시간 auto] [가격/배지 1fr → 우측 정렬]
+        시간과 소요시간이 자연스럽게 붙고, 남는 공간은 가격 컬럼이 흡수해 우측으로 밀어줌.
       */}
-      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_1fr_auto_auto] sm:gap-6">
+      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_auto_auto_1fr] sm:gap-5">
         {/* 항공사 — 고정 폭, 긴 이름은 truncate */}
         <div className="flex min-w-0 items-center gap-3">
           <AirlineLogo flight={flight} />
@@ -49,8 +50,8 @@ export function FlightCard({ flight }: FlightCardProps) {
           )}
         </div>
 
-        {/* 소요 시간 — 폰트 일관되게, 점선 제거 */}
-        <div className="whitespace-nowrap text-foreground">
+        {/* 소요 시간 — 고정 폭 + 우측 정렬로 카드 간 가로 정렬 일치 */}
+        <div className="w-[90px] whitespace-nowrap text-right text-sm text-muted-foreground">
           {flight.duration}
         </div>
 
