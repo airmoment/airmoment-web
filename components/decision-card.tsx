@@ -18,6 +18,7 @@ function formatKrw(v: number) {
  * - 예상 최저가 도달일: 미래 예측들 중 q50이 가장 낮은 day
  * - 예상 최저가 범위: 그 날의 q10 ~ q90
  * - 예상 절감액: 현재가 - q10 (최선의 시나리오)
+ *   현재가가 이미 q10 이하면 0 → UI에서 "-" 표시.
  */
 function summarizeForecast(forecast: PriceForecast | undefined) {
   if (!forecast || forecast.predictions.length === 0) return null
@@ -34,9 +35,13 @@ function summarizeForecast(forecast: PriceForecast | undefined) {
     high: lowestByMedian.q90,
     day: lowestByMedian.day,
   }
-  const maxSavings = Math.max(0, current - lowestByMedian.q10)
+  // 기다려서 절감 가능한 금액. 현재가가 이미 예측 최저(q10) 이하면 0.
+  const rawDiff = current - lowestByMedian.q10
+  const maxSavings = rawDiff > 0 ? rawDiff : 0
+  // 현재가가 이미 q10 이하 = 더 싸질 가능성 없음
+  const noSavings = rawDiff <= 0
 
-  return { current, expectedLowRange, maxSavings }
+  return { current, expectedLowRange, maxSavings, noSavings }
 }
 
 export function DecisionCard({ predict, forecast }: DecisionCardProps) {
@@ -110,9 +115,14 @@ export function DecisionCard({ predict, forecast }: DecisionCardProps) {
             />
             <Metric
               label="예상 최대 절감액"
-              value={formatKrw(summary.maxSavings)}
+              value={summary.noSavings ? "-" : formatKrw(summary.maxSavings)}
+              sub={
+                summary.noSavings
+                  ? "현재가가 예측 최저 이하"
+                  : undefined
+              }
               icon={<TrendingDown className={`h-4 w-4 ${accent.text}`} />}
-              accentClass={accent.text}
+              accentClass={summary.noSavings ? undefined : accent.text}
             />
           </div>
         )}
