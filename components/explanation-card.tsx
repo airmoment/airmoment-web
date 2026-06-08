@@ -27,7 +27,10 @@ function buildPlaceholderReasons(
   }
 
   const current = forecast.currentPrice
-  const futurePoints = forecast.predictions.filter((p) => p.day > 0)
+  // 출발일 이후 예측은 의미 없으므로 제외.
+  const futurePoints = forecast.predictions.filter(
+    (p) => p.day > 0 && p.day <= forecast.daysUntilDeparture
+  )
   if (futurePoints.length === 0) return reasons
 
   const minFutureMedian = Math.min(...futurePoints.map((p) => p.q50))

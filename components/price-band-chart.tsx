@@ -123,9 +123,28 @@ export function PriceBandChart({
   route,
   daysUntilDeparture,
 }: PriceBandChartProps) {
+  // 출발일 이후의 예측은 의미 없으므로 잘라낸다.
+  // (백엔드는 항상 0/1/3/7/14일 5포인트를 보내지만, 출발까지 N일 남았으면
+  //  day <= N 인 포인트만 유효함.)
+  const validPredictions =
+    daysUntilDeparture !== undefined
+      ? predictions.filter((p) => p.day <= daysUntilDeparture)
+      : predictions
+
+  // 데이터가 너무 적으면 (예: 오늘 출발) 차트 대신 안내 카드 표시.
+  if (validPredictions.length < 2) {
+    return (
+      <ShortHorizonNotice
+        currentPrice={validPredictions[0]?.q50}
+        daysUntilDeparture={daysUntilDeparture}
+        route={route}
+      />
+    )
+  }
+
   // recharts에 넣기 좋게 변형
   // 차트엔 q10/q90, q25/q75는 [low, high] 튜플 형태의 Area로 표시한다.
-  const data = predictions.map((p) => ({
+  const data = validPredictions.map((p) => ({
     day: p.day,
     q50: p.q50,
     band80: [p.q10, p.q90] as [number, number],
@@ -137,7 +156,7 @@ export function PriceBandChart({
 
   // Y축 범위 — 데이터의 실제 min/max 기반으로 위아래 15% 여유.
   // 0부터 시작하면 밴드가 납작해 보이므로 줌인.
-  const allValues = predictions.flatMap((p) => [p.q10, p.q90, p.q50])
+  const allValues = validPredictions.flatMap((p) => [p.q10, p.q90, p.q50])
   const dataMin = Math.min(...allValues)
   const dataMax = Math.max(...allValues)
   const padding = Math.max((dataMax - dataMin) * 0.15, 10000)
@@ -270,5 +289,39 @@ function Legend({
       {solidDot && <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#4a6d87]" />}
       <span>{label}</span>
     </span>
+  )
+}
+
+/**
+ * 출발이 임박해서 (오늘 또는 1일 이내) 유효한 예측 포인트가 부족할 때
+ * 차트 대신 보여주는 안내. 가격이 있으면 현재가만 강조한다.
+ */
+function ShortHorizonNotice({
+  currentPrice,
+  daysUntilDeparture,
+  route,
+}: {
+  currentPrice?: number
+  daysUntilDeparture?: number
+  route?: string
+}) {
+  const headline =
+    daysUntilDeparture === 0
+      ? "오늘 출발 — 가격 예측이 제공되지 않습니다"
+      : "출발이 임박해 가격 예측 데이터가 제한적입니다"
+
+  return (
+    <div className="flex h-64 flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 px-6 text-center">
+      <p className="text-sm font-medium text-foreground">{headline}</p>
+      {currentPrice !== undefined && (
+        <p className="mt-2 text-base">
+          {route ? <span className="text-muted-foreground">{route} 현재가 · </span> : null}
+          <span className="font-semibold text-primary">{formatKrw(currentPrice)}</span>
+        </p>
+      )}
+      <p className="mt-3 text-xs text-muted-foreground">
+        남은 기간이 짧을수록 가격 변동 폭이 줄어들어 예측 의미가 작아집니다.
+      </p>
+    </div>
   )
 }

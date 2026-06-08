@@ -19,10 +19,20 @@ interface InterestCardProps {
   onChanged?: () => void
 }
 
+/** 오늘부터 출발일(YYYY-MM-DD)까지 남은 일수. 이미 지난 날짜면 0. */
+function daysUntilFromToday(departureAt: string): number {
+  const target = new Date(departureAt + "T00:00:00")
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffMs = target.getTime() - today.getTime()
+  return Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)))
+}
+
 export function InterestCard({ interest, onChanged }: InterestCardProps) {
   const { token } = useAuth()
   const route = `${interest.departureCode} → ${interest.arrivalCode}`
   const dateLabel = `${interest.departureAt} (${interest.departureDayOfWeek})`
+  const daysUntilDeparture = daysUntilFromToday(interest.departureAt)
 
   // 낙관적 업데이트를 위한 로컬 상태. 실패 시 원상복구.
   const [isBookmarked, setIsBookmarked] = useState(interest.isBookmarked)
@@ -151,7 +161,11 @@ export function InterestCard({ interest, onChanged }: InterestCardProps) {
         {/* 우측: 가격 밴드 차트 (predictions이 null인 경우 안내) */}
         <div>
           {interest.predictions && interest.predictions.length > 0 ? (
-            <PriceBandChart predictions={interest.predictions} route={route} />
+            <PriceBandChart
+              predictions={interest.predictions}
+              route={route}
+              daysUntilDeparture={daysUntilDeparture}
+            />
           ) : (
             <PredictionPlaceholder />
           )}

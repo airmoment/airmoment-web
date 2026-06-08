@@ -23,7 +23,10 @@ function formatKrw(v: number) {
 function summarizeForecast(forecast: PriceForecast | undefined) {
   if (!forecast || forecast.predictions.length === 0) return null
   const current = forecast.currentPrice
-  const futurePoints = forecast.predictions.filter((p) => p.day > 0)
+  // 출발일 이후 예측은 의미 없으므로 제외.
+  const futurePoints = forecast.predictions.filter(
+    (p) => p.day > 0 && p.day <= forecast.daysUntilDeparture
+  )
   if (futurePoints.length === 0) return null
 
   const lowestByMedian = futurePoints.reduce((acc, p) =>
