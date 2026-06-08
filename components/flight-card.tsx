@@ -15,38 +15,47 @@ export function FlightCard({ flight }: FlightCardProps) {
 
   return (
     <div className="rounded-xl border border-border bg-white p-4 transition-shadow hover:shadow-md">
-      <div className="flex flex-wrap items-center gap-4 lg:gap-6">
-        {/* 항공사 정보 */}
-        <div className="flex min-w-[140px] items-center gap-3">
+      {/*
+        모바일(기본): flex-wrap 으로 자연스럽게 줄바꿈.
+        sm+ 부터는 grid 4컬럼 — 항공사명 길이와 무관하게 컬럼 정렬이 흐트러지지 않음.
+        [항공사 180px] [시간 1fr] [소요시간 auto] [가격/배지 auto]
+      */}
+      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_1fr_auto_auto] sm:gap-6">
+        {/* 항공사 — 고정 폭, 긴 이름은 truncate */}
+        <div className="flex min-w-0 items-center gap-3">
           <AirlineLogo flight={flight} />
           <span
-            className="text-base font-semibold"
+            className="truncate text-base font-semibold"
             style={{ color: airlineColor }}
+            title={flight.airline.name}
           >
             {flight.airline.name}
           </span>
         </div>
 
         {/* 출발/도착 시간 */}
-        <div className="flex items-center gap-2 text-foreground">
-          <span className="text-lg font-medium">
-            {flight.departure.time} {flight.departure.code}({flight.departure.airport})
+        <div className="flex min-w-0 items-center gap-2 text-foreground">
+          <span className="whitespace-nowrap text-lg font-medium">
+            {flight.departure.time} {flight.departure.code}
           </span>
           <span className="text-muted-foreground">→</span>
-          <span className="text-lg font-medium">
-            {flight.arrival.time} {flight.arrival.code}({flight.arrival.airport})
+          <span className="whitespace-nowrap text-lg font-medium">
+            {flight.arrival.time} {flight.arrival.code}
           </span>
-          <span className="ml-2 text-sm text-muted-foreground">{flight.date}</span>
+          {flight.date && (
+            <span className="ml-2 whitespace-nowrap text-sm text-muted-foreground">
+              {flight.date}
+            </span>
+          )}
         </div>
 
-        {/* 소요 시간 */}
-        <div className="flex items-center">
-          <span className="text-foreground">{flight.duration}</span>
-          <span className="ml-4 text-muted-foreground">- - - - - - -</span>
+        {/* 소요 시간 — 폰트 일관되게, 점선 제거 */}
+        <div className="whitespace-nowrap text-foreground">
+          {flight.duration}
         </div>
 
-        {/* 가격 + 직항/경유 표시 (편도 라벨 자리 대체) */}
-        <div className="ml-auto flex items-center gap-2">
+        {/* 가격 + 직항/경유 배지 */}
+        <div className="flex items-center justify-end gap-2">
           {flight.isDirect === true && (
             <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-sm font-semibold text-white">
               직항
@@ -60,7 +69,7 @@ export function FlightCard({ flight }: FlightCardProps) {
               경유
             </span>
           )}
-          <span className="text-xl font-bold text-red-500">
+          <span className="whitespace-nowrap text-xl font-bold text-red-500">
             ₩{formatPrice(flight.price)}
           </span>
         </div>
