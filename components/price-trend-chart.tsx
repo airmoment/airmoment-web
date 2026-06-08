@@ -54,7 +54,7 @@ export function PriceTrendChart({ data }: PriceTrendChartProps) {
                 stroke="#d1e7f5"
                 strokeWidth="1"
               />
-              <text x={padding.left - 10} y={y + 4} textAnchor="end" className="fill-muted-foreground text-xs">
+              <text x={padding.left - 10} y={y + 4} textAnchor="end" className="fill-muted-foreground text-sm">
                 {label}
               </text>
             </g>
@@ -76,7 +76,7 @@ export function PriceTrendChart({ data }: PriceTrendChartProps) {
               x={p.x}
               y={chartHeight - 10}
               textAnchor="middle"
-              className="fill-muted-foreground text-xs"
+              className="fill-muted-foreground text-sm"
             >
               {p.date}
             </text>

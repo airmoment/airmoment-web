@@ -110,7 +110,7 @@ export function HomeSearchBar() {
                 <span className="text-sm">
                   {dest.city} ({dest.country}, {dest.code})
                 </span>
-                <span className="mt-0.5 text-xs text-muted-foreground">
+                <span className="mt-0.5 text-sm text-muted-foreground">
                   {dest.airport}
                 </span>
               </button>
@@ -129,11 +129,11 @@ export function HomeSearchBar() {
           className="flex cursor-not-allowed items-center gap-1.5 rounded-full opacity-70 sm:gap-2"
         >
           <User className="h-4 w-4 text-white/70 sm:h-5 sm:w-5" />
-          <span className="text-xs text-white/70 sm:text-sm">승객</span>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-white/30 text-xs text-white/60 sm:h-6 sm:w-6 sm:text-sm">
+          <span className="text-sm text-white/70 sm:text-sm">승객</span>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-white/30 text-sm text-white/60 sm:h-6 sm:w-6 sm:text-sm">
             1
           </span>
-          <span className="text-xs text-white/70 sm:text-sm">명</span>
+          <span className="text-sm text-white/70 sm:text-sm">명</span>
         </button>
 
         {/* 날짜 달력 */}
@@ -144,8 +144,8 @@ export function HomeSearchBar() {
               className="flex items-center gap-1.5 rounded-full transition-colors hover:bg-white/10 sm:gap-2"
             >
               <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="text-xs sm:text-sm">가는 날</span>
-              <span className="rounded-full border border-white/60 px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm">
+              <span className="text-sm sm:text-sm">가는 날</span>
+              <span className="rounded-full border border-white/60 px-2 py-0.5 text-sm sm:px-3 sm:py-1 sm:text-sm">
                 {date ? formatDateDisplay(date) : "날짜 선택"}
               </span>
             </button>
@@ -169,7 +169,7 @@ export function HomeSearchBar() {
           type="button"
           onClick={() => showLocked("좌석", "일반석")}
           title="좌석 선택은 아직 지원하지 않아요"
-          className={`rounded-full border px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm ${DISABLED_OPTION}`}
+          className={`rounded-full border px-2 py-0.5 text-sm sm:px-3 sm:py-1 sm:text-sm ${DISABLED_OPTION}`}
         >
           일반석
         </button>
@@ -179,7 +179,7 @@ export function HomeSearchBar() {
           type="button"
           onClick={() => showLocked("왕복 여부", "편도")}
           title="왕복은 아직 지원하지 않아요"
-          className={`rounded-full border px-2 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm ${DISABLED_OPTION}`}
+          className={`rounded-full border px-2 py-0.5 text-sm sm:px-3 sm:py-1 sm:text-sm ${DISABLED_OPTION}`}
         >
           편도
         </button>

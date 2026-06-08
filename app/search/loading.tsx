@@ -30,8 +30,8 @@ export default function SearchLoading() {
           <span className="h-2 w-2 animate-bounce rounded-full bg-primary" />
         </div>
 
-        <p className="mt-6 text-xs text-muted-foreground">
-          외부 항공권 데이터 조회 중이라 1~2분 정도 걸릴 수 있어요.
+        <p className="mt-6 text-sm text-muted-foreground">
+          외부 항공권 데이터 조회 중이라 시간이 걸릴 수 있어요.
           <br />
           잠시만 기다려주세요.
         </p>

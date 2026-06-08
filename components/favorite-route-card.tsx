@@ -20,7 +20,7 @@ export function FavoriteRouteCard({ route }: FavoriteRouteCardProps) {
         <div className="space-y-4">
           {/* 배지 및 태그 */}
           <div className="flex items-center gap-2">
-            <span className="rounded bg-[#4a6d87] px-2 py-0.5 text-xs font-medium text-white">
+            <span className="rounded bg-[#4a6d87] px-2 py-0.5 text-sm font-medium text-white">
               ONE-WAY
             </span>
             <span className="text-sm text-primary">직항만 포함</span>
@@ -58,7 +58,7 @@ export function FavoriteRouteCard({ route }: FavoriteRouteCardProps) {
 
           {/* 이메일 알림 토글 */}
           <div className="mt-6 space-y-2">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
               EMAIL ALERT
             </span>
             <div className="flex items-center gap-3">

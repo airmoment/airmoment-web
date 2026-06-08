@@ -100,7 +100,7 @@ export function InterestCard({ interest, onChanged }: InterestCardProps) {
         {/* 좌측: 노선 정보 + 토글 */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="rounded bg-[#4a6d87] px-2 py-0.5 text-xs font-medium text-white">
+            <span className="rounded bg-[#4a6d87] px-2 py-0.5 text-sm font-medium text-white">
               ONE-WAY
             </span>
             {interest.nonStopOnly && (
@@ -152,7 +152,7 @@ export function InterestCard({ interest, onChanged }: InterestCardProps) {
           </div>
 
           {interest.predictedAt && (
-            <p className="pt-1 text-xs text-muted-foreground">
+            <p className="pt-1 text-sm text-muted-foreground">
               마지막 예측: {new Date(interest.predictedAt).toLocaleString("ko-KR")}
             </p>
           )}
@@ -218,7 +218,7 @@ function PredictionPlaceholder() {
     <div className="flex h-full min-h-[200px] items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
       <div className="space-y-1">
         <p className="text-sm font-medium text-foreground">예측 데이터 준비 중</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           해당 노선에 대한 가격 예측이 아직 수행되지 않았어요.
           <br />
           잠시 후 다시 확인해주세요.

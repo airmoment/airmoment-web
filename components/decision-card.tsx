@@ -79,7 +79,7 @@ export function DecisionCard({ predict, forecast }: DecisionCardProps) {
         <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <h2 className="text-lg font-semibold text-foreground">구매 추천</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               CatBoost 분류 + XGBoost 회귀 Decision Engine
             </p>
           </div>
@@ -93,7 +93,7 @@ export function DecisionCard({ predict, forecast }: DecisionCardProps) {
               <span className="text-xl font-extrabold tracking-wide">
                 {isBuy ? "BUY" : "WAIT"}
               </span>
-              <span className="text-xs font-medium text-white/90">
+              <span className="text-sm font-medium text-white/90">
                 {isBuy ? "지금 사세요" : "기다리세요"}
               </span>
             </div>
@@ -149,7 +149,7 @@ function Metric({
 }) {
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {icon}
         <span>{label}</span>
       </div>
@@ -158,7 +158,7 @@ function Metric({
       >
         {value}
       </p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+      {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
     </div>
   )
 }

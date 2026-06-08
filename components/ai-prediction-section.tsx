@@ -88,7 +88,7 @@ export function AIPredictionSection({
                 </span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">현재 최저가 대비 최대 30% 저렴</p>
+            <p className="text-sm text-muted-foreground">현재 최저가 대비 최대 30% 저렴</p>
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@ export function AIPredictionSection({
                   </div>
                 </div>
               </div>
-              <p className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+              <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                 {factors.explanation}
               </p>
             </div>
@@ -152,11 +152,11 @@ export function AIPredictionSection({
                       strokeWidth={8}
                       color={period.percentage >= 70 ? "#4a6d87" : period.percentage >= 30 ? "#eab308" : "#e5e7eb"}
                     />
-                    <span className="text-xs text-muted-foreground">{period.label}</span>
+                    <span className="text-sm text-muted-foreground">{period.label}</span>
                   </div>
                 ))}
               </div>
-              <p className="text-center text-xs text-muted-foreground">
+              <p className="text-center text-sm text-muted-foreground">
                 7일 이내에 가격이 하락할 확률이 가장 높습니다.
                 <br />
                 대기하시는 것을 추천합니다.
@@ -167,7 +167,7 @@ export function AIPredictionSection({
             <div className="space-y-4">
               <div>
                 <h4 className="text-base font-semibold text-foreground">예측 기준 설정</h4>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   모델의 예측 기준을 직접 조정하여 다른 예측 결과 확인 가능
                 </p>
               </div>
@@ -175,7 +175,7 @@ export function AIPredictionSection({
                 <div className="space-y-2">
                   <label className="text-sm text-foreground">가격 하락 임계값(Threshold)</label>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">0</span>
+                    <span className="text-sm text-muted-foreground">0</span>
                     <input
                       type="range"
                       min="0"
@@ -184,9 +184,9 @@ export function AIPredictionSection({
                       onChange={(e) => setThreshold(Number(e.target.value))}
                       className="flex-1 accent-[#4a6d87]"
                     />
-                    <span className="text-xs text-muted-foreground">1</span>
+                    <span className="text-sm text-muted-foreground">1</span>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-sm text-muted-foreground">
                     <span>보수적</span>
                     <span>공격적</span>
                   </div>
@@ -194,7 +194,7 @@ export function AIPredictionSection({
                 <div className="space-y-2">
                   <label className="text-sm text-foreground">기대 절감액(Expected Gain)가중치</label>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground">Low</span>
+                    <span className="text-sm text-muted-foreground">Low</span>
                     <input
                       type="range"
                       min="0"
@@ -203,7 +203,7 @@ export function AIPredictionSection({
                       onChange={(e) => setGainWeight(Number(e.target.value))}
                       className="flex-1 accent-[#4a6d87]"
                     />
-                    <span className="text-xs text-muted-foreground">High</span>
+                    <span className="text-sm text-muted-foreground">High</span>
                   </div>
                 </div>
               </div>

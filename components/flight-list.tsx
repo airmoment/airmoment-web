@@ -179,7 +179,7 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
                 <SlidersHorizontal className="h-4 w-4" />
                 필터
                 {isFilterActive && (
-                  <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-xs text-white">
+                  <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-sm text-white">
                     ON
                   </span>
                 )}
@@ -202,7 +202,7 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
                     step={Math.max(1000, Math.round((priceMax - priceMin) / 50))}
                     onValueChange={(v) => setMaxPrice(v[0])}
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-sm text-muted-foreground">
                     <span>{formatPriceShort(priceMin)}</span>
                     <span>{formatPriceShort(priceMax)}</span>
                   </div>
@@ -226,7 +226,7 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       선택 안 하면 전체 표시
                     </p>
                   </div>

@@ -88,7 +88,7 @@ export function ExplanationCard({ predict, forecast }: ExplanationCardProps) {
             <Sparkles className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">AI 판단 근거</h2>
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             SHAP 기반 요인 추출 + LLM 자연어 설명
           </p>
         </div>
@@ -106,7 +106,7 @@ export function ExplanationCard({ predict, forecast }: ExplanationCardProps) {
         ))}
       </ul>
 
-      <p className="mt-4 text-xs text-muted-foreground">
+      <p className="mt-4 text-sm text-muted-foreground">
         AI의 판단은 참고용입니다. 최종 구매 결정은 사용자가 직접 내려주세요.
       </p>
     </div>

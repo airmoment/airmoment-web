@@ -72,7 +72,7 @@ function CustomTooltip({
   const isNow = label === 0
 
   return (
-    <div className="rounded-lg border border-border bg-white px-3 py-2.5 text-xs shadow-md">
+    <div className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm shadow-md">
       <div className="mb-1.5 text-sm font-semibold text-foreground">
         {label !== undefined ? formatTick(label) : ""}
       </div>
@@ -176,7 +176,7 @@ export function PriceBandChart({
           <span>예측 방법: Split Conformal</span>
         </div>
         {decisionLabel && (
-          <span className="rounded-full border border-primary bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
+          <span className="rounded-full border border-primary bg-primary/5 px-3 py-1 text-sm font-semibold text-primary">
             {decisionLabel}
           </span>
         )}
@@ -253,7 +253,7 @@ export function PriceBandChart({
       </div>
 
       {/* 범례 */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
         <Legend swatchClassName="bg-[#4a6d87]/15" label="80% 예측 구간 (q10–q90)" />
         <Legend swatchClassName="bg-violet-400/35" label="50% 예측 구간 (q25–q75)" />
         <Legend dot label="중앙값 예측 (q50)" />
@@ -319,7 +319,7 @@ function ShortHorizonNotice({
           <span className="font-semibold text-primary">{formatKrw(currentPrice)}</span>
         </p>
       )}
-      <p className="mt-3 text-xs text-muted-foreground">
+      <p className="mt-3 text-sm text-muted-foreground">
         남은 기간이 짧을수록 가격 변동 폭이 줄어들어 예측 의미가 작아집니다.
       </p>
     </div>
