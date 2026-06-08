@@ -52,7 +52,7 @@ export function FlightCard({ flight }: FlightCardProps) {
         <div className="flex min-w-0 items-center gap-3">
           <AirlineLogo flight={flight} />
           <span
-            className="truncate text-base font-semibold"
+            className="truncate text-lg font-semibold"
             style={{ color: airlineColor }}
             title={flight.airline.name}
           >
@@ -66,7 +66,7 @@ export function FlightCard({ flight }: FlightCardProps) {
           <div className="grid grid-cols-[100px_130px_100px] items-center gap-3">
             {/* 출발 — 우측 정렬 (소요시간 쪽으로 붙음) */}
             <div className="flex items-baseline justify-end gap-1.5">
-              <span className="whitespace-nowrap text-xl font-semibold text-foreground">
+              <span className="whitespace-nowrap text-xl font-semibold tabular-nums text-foreground">
                 {flight.departure.time}
               </span>
               <span className="text-sm text-muted-foreground">
@@ -74,9 +74,11 @@ export function FlightCard({ flight }: FlightCardProps) {
               </span>
             </div>
 
-            {/* 소요시간 + 화살표 — 가운데 */}
+            {/* 소요시간 + 화살표 — 가운데, 숫자 폭 통일로 카드 간 정렬 */}
             <div className="flex flex-col items-center text-sm text-muted-foreground">
-              <span className="whitespace-nowrap">{flight.duration}</span>
+              <span className="whitespace-nowrap tabular-nums">
+                {flight.duration}
+              </span>
               <div className="mt-0.5 flex w-full items-center">
                 <div className="h-px flex-1 bg-border" />
                 <span className="px-1 text-xs">→</span>
@@ -86,7 +88,7 @@ export function FlightCard({ flight }: FlightCardProps) {
 
             {/* 도착 — 좌측 정렬 (+ 다음날 위첨자) */}
             <div className="flex items-baseline justify-start gap-1.5">
-              <span className="whitespace-nowrap text-xl font-semibold text-foreground">
+              <span className="whitespace-nowrap text-xl font-semibold tabular-nums text-foreground">
                 {flight.arrival.time}
                 {dayOffset > 0 && (
                   <sup
@@ -119,7 +121,7 @@ export function FlightCard({ flight }: FlightCardProps) {
               경유
             </span>
           )}
-          <span className="whitespace-nowrap text-2xl font-bold text-red-500">
+          <span className="whitespace-nowrap text-xl font-bold tabular-nums text-red-500">
             ₩{formatPrice(flight.price)}
           </span>
         </div>
