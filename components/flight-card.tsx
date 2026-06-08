@@ -44,10 +44,11 @@ export function FlightCard({ flight }: FlightCardProps) {
       {/*
         모바일(기본): flex-wrap.
         sm+ 부터는 grid 3컬럼:
-        [항공사 180px] [시간 ↔ 소요시간 ↔ 시간 (1fr)] [가격/배지 auto]
-        가운데가 시간-소요시간-시간 묶음이라 빈 공간 없이 균형 잡힘.
+        [항공사 180px] [시간 ↔ 소요시간 ↔ 시간 (1fr)] [가격/배지 200px]
+        가격 컬럼을 고정폭으로 잡아 1fr 너비가 카드마다 동일해지고,
+        시간 묶음 중앙 X가 모든 카드에서 같은 위치에 떨어진다.
       */}
-      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_1fr_auto] sm:gap-6">
+      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_1fr_200px] sm:gap-6">
         {/* 항공사 — 고정 폭, 긴 이름은 truncate */}
         <div className="flex min-w-0 items-center gap-3">
           <AirlineLogo flight={flight} />
@@ -74,8 +75,9 @@ export function FlightCard({ flight }: FlightCardProps) {
               </span>
             </div>
 
-            {/* 소요시간 + 화살표 — 가운데, 숫자 폭 통일로 카드 간 정렬 */}
-            <div className="flex flex-col items-center text-sm text-muted-foreground">
+            {/* 소요시간 + 화살표 — 좌측 정렬해서 모든 카드의 소요시간 시작점이
+                같은 X 좌표에 떨어지도록. 화살표는 컬럼 폭 전체. */}
+            <div className="flex flex-col items-start text-sm text-muted-foreground">
               <span className="whitespace-nowrap tabular-nums">
                 {flight.duration}
               </span>
