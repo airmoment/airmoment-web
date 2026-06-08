@@ -10,18 +10,44 @@ interface FlightCardProps {
   flight: Flight
 }
 
+/**
+ * 출발 시각에 비행시간을 더했을 때 며칠을 넘어가는지 계산.
+ * - 같은 날 도착 → 0
+ * - 다음 날 도착 → 1
+ * - 그 이후 → 2+
+ * durationMinutes가 없으면 단순 문자열 비교로 폴백.
+ */
+function computeDayOffset(
+  depTime: string,
+  arrTime: string,
+  durationMinutes?: number
+): number {
+  if (durationMinutes !== undefined) {
+    const [dh, dm] = depTime.split(":").map(Number)
+    const depMin = dh * 60 + dm
+    const arrAbsolute = depMin + durationMinutes
+    return Math.floor(arrAbsolute / 1440)
+  }
+  return arrTime < depTime ? 1 : 0
+}
+
 export function FlightCard({ flight }: FlightCardProps) {
   const airlineColor = getAirlineColor(flight.airline.name)
+  const dayOffset = computeDayOffset(
+    flight.departure.time,
+    flight.arrival.time,
+    flight.durationMinutes
+  )
 
   return (
     <div className="rounded-xl border border-border bg-white p-4 transition-shadow hover:shadow-md">
       {/*
-        모바일(기본): flex-wrap 으로 자연스럽게 줄바꿈.
-        sm+ 부터는 grid 4컬럼:
-        [항공사 180px] [시간 auto] [소요시간 auto] [가격/배지 1fr → 우측 정렬]
-        시간과 소요시간이 자연스럽게 붙고, 남는 공간은 가격 컬럼이 흡수해 우측으로 밀어줌.
+        모바일(기본): flex-wrap.
+        sm+ 부터는 grid 3컬럼:
+        [항공사 180px] [시간 ↔ 소요시간 ↔ 시간 (1fr)] [가격/배지 auto]
+        가운데가 시간-소요시간-시간 묶음이라 빈 공간 없이 균형 잡힘.
       */}
-      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_auto_auto_1fr] sm:gap-5">
+      <div className="flex flex-wrap items-center gap-4 sm:grid sm:grid-cols-[180px_1fr_auto] sm:gap-6">
         {/* 항공사 — 고정 폭, 긴 이름은 truncate */}
         <div className="flex min-w-0 items-center gap-3">
           <AirlineLogo flight={flight} />
@@ -34,28 +60,48 @@ export function FlightCard({ flight }: FlightCardProps) {
           </span>
         </div>
 
-        {/* 출발/도착 시간 */}
-        <div className="flex min-w-0 items-center gap-2 text-foreground">
-          <span className="whitespace-nowrap text-lg font-medium">
-            {flight.departure.time} {flight.departure.code}
-          </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="whitespace-nowrap text-lg font-medium">
-            {flight.arrival.time} {flight.arrival.code}
-          </span>
-          {flight.date && (
-            <span className="ml-2 whitespace-nowrap text-sm text-muted-foreground">
-              {flight.date}
+        {/* 시간 ↔ 소요시간 ↔ 시간 묶음 */}
+        <div className="flex min-w-0 items-center gap-4">
+          {/* 출발 */}
+          <div className="flex items-baseline gap-1.5">
+            <span className="whitespace-nowrap text-lg font-semibold text-foreground">
+              {flight.departure.time}
             </span>
-          )}
+            <span className="text-sm text-muted-foreground">
+              {flight.departure.code}
+            </span>
+          </div>
+
+          {/* 소요시간 + 화살표 — 가운데 정렬 */}
+          <div className="flex w-[110px] flex-col items-center text-sm text-muted-foreground">
+            <span className="whitespace-nowrap">{flight.duration}</span>
+            <div className="mt-0.5 flex w-full items-center">
+              <div className="h-px flex-1 bg-border" />
+              <span className="px-1 text-xs">→</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+          </div>
+
+          {/* 도착 (+ 다음날 위첨자) */}
+          <div className="flex items-baseline gap-1.5">
+            <span className="whitespace-nowrap text-lg font-semibold text-foreground">
+              {flight.arrival.time}
+              {dayOffset > 0 && (
+                <sup
+                  className="ml-0.5 text-xs font-medium text-primary"
+                  title={`도착 ${dayOffset}일 후`}
+                >
+                  +{dayOffset}
+                </sup>
+              )}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {flight.arrival.code}
+            </span>
+          </div>
         </div>
 
-        {/* 소요 시간 — 고정 폭 + 우측 정렬로 카드 간 가로 정렬 일치 */}
-        <div className="w-[90px] whitespace-nowrap text-right text-sm text-muted-foreground">
-          {flight.duration}
-        </div>
-
-        {/* 가격 + 직항/경유 배지 */}
+        {/* 가격 + 직항/경유 배지 — 우측 */}
         <div className="flex items-center justify-end gap-2">
           {flight.isDirect === true && (
             <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-sm font-semibold text-white">
