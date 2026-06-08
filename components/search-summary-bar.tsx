@@ -1,13 +1,6 @@
 "use client"
 
-import {
-  User,
-  Calendar,
-  PlaneTakeoff,
-  CheckSquare,
-  Square,
-  ChevronDown,
-} from "lucide-react"
+import { User, Calendar, PlaneTakeoff, ChevronDown } from "lucide-react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Calendar as CalendarPicker } from "@/components/ui/calendar"
@@ -62,7 +55,6 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
   const router = useRouter()
   const pathname = usePathname()
   const urlParams = useSearchParams()
-  const directOnly = searchParams.directOnly
   const currentArrivalCode = searchParams.arrival.code
   const currentDate = parseISODate(searchParams.date)
 
@@ -84,10 +76,6 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
     const iso = toISODate(d)
     if (iso === searchParams.date) return
     updateQuery("departureAt", iso)
-  }
-
-  function toggleDirectOnly() {
-    updateQuery("nonstopOnly", directOnly ? null : "true")
   }
 
   return (
@@ -204,29 +192,7 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
           <span className="text-sm text-foreground">{searchParams.tripType}</span>
         </button>
 
-        {/* 직항만 체크박스 — URL의 nonstopOnly 토글 */}
-        <button
-          type="button"
-          onClick={toggleDirectOnly}
-          className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors ${
-            directOnly
-              ? "border-primary bg-primary/5 hover:bg-primary/10"
-              : "border-border hover:bg-muted/50"
-          }`}
-        >
-          {directOnly ? (
-            <CheckSquare className="h-4 w-4 text-primary" />
-          ) : (
-            <Square className="h-4 w-4 text-muted-foreground" />
-          )}
-          <span
-            className={`text-sm ${
-              directOnly ? "font-medium text-primary" : "text-foreground"
-            }`}
-          >
-            직항만
-          </span>
-        </button>
+        {/* 직항만 토글은 항공권 리스트의 필터/정렬과 함께 하단에서 처리 */}
       </div>
 
       {/* 버튼 그룹 */}

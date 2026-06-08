@@ -86,9 +86,12 @@ export default async function SearchResultsPage({
   const departureCode = params.departureCode ?? "ICN"
   const arrivalCode = params.arrivalCode ?? "SYD"
   const departureAt = params.departureAt ?? "2026-06-10"
-  const nonstopOnly = params.nonstopOnly === "true"
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined
   const sort = params.sort
+  // 직항만 필터는 클라이언트(FlightList)에서만 적용 — AI 분석 카드는 항상 전체
+  // 데이터(직항+경유 모두) 기준으로 예측을 보여주므로 백엔드에 nonstopOnly를
+  // 보내지 않는다. 북마크/알림에 들어가는 nonstopOnly는 기본 false.
+  const nonstopOnly = false
 
   const token = process.env.API_TOKEN ?? ""
 
@@ -104,7 +107,7 @@ export default async function SearchResultsPage({
   } else {
     try {
       const result = await searchFlights(
-        { departureCode, arrivalCode, departureAt, nonstopOnly, maxPrice, sort },
+        { departureCode, arrivalCode, departureAt, maxPrice, sort },
         token
       )
       const rawFlights = result.data.flightList.map((item, i) =>

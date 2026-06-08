@@ -1,7 +1,14 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Check, ChevronDown, Filter, SlidersHorizontal } from "lucide-react"
+import {
+  Check,
+  CheckSquare,
+  ChevronDown,
+  Filter,
+  SlidersHorizontal,
+  Square,
+} from "lucide-react"
 import { FlightCard } from "./flight-card"
 import type { Flight } from "@/lib/mock-data"
 import {
@@ -62,6 +69,8 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
 
   const [maxPrice, setMaxPrice] = useState<number>(priceMax)
   const [selectedAirlines, setSelectedAirlines] = useState<Set<string>>(new Set())
+  // 직항만 필터 — 컴포넌트 로컬 상태. URL/AI 카드와 무관, 리스트 표시에만 영향.
+  const [directOnly, setDirectOnly] = useState(false)
 
   // priceMax가 바뀌면 (예: 새로 데이터 로드) 슬라이더 상한도 자동 조정
   // 단순 상태 동기화는 useMemo로 처리하되, useState는 첫 마운트값만 사용하므로
@@ -70,6 +79,10 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
   const filteredAndSorted = useMemo(() => {
     let list = [...flights]
 
+    // 필터: 직항만 (isDirect=true 인 것만, 추정값에 의존)
+    if (directOnly) {
+      list = list.filter((f) => f.isDirect === true)
+    }
     // 필터: 가격 상한
     if (maxPrice > 0 && maxPrice < priceMax) {
       list = list.filter((f) => f.price <= maxPrice)
@@ -98,7 +111,7 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
         break
     }
     return list
-  }, [flights, sortKey, maxPrice, selectedAirlines, priceMax])
+  }, [flights, sortKey, maxPrice, selectedAirlines, priceMax, directOnly])
 
   function toggleAirline(name: string) {
     setSelectedAirlines((prev) => {
@@ -116,6 +129,8 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
 
   const isFilterActive =
     (maxPrice > 0 && maxPrice < priceMax) || selectedAirlines.size > 0
+  // 직항만은 별도 토글로 카운터에 같이 반영
+  const isAnyFilterActive = isFilterActive || directOnly
   const visibleCount = filteredAndSorted.length
 
   return (
@@ -124,7 +139,7 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">
           총 검색결과 {totalResults}개
-          {isFilterActive && (
+          {isAnyFilterActive && (
             <span className="ml-2 text-sm font-normal text-muted-foreground">
               (필터 후 {visibleCount}개)
             </span>
@@ -132,6 +147,24 @@ export function FlightList({ flights, totalResults }: FlightListProps) {
         </h2>
 
         <div className="flex items-center gap-3">
+          {/* 직항만 토글 — 리스트 표시에만 영향, AI 분석엔 영향 X */}
+          <button
+            type="button"
+            onClick={() => setDirectOnly((v) => !v)}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+              directOnly
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {directOnly ? (
+              <CheckSquare className="h-4 w-4" />
+            ) : (
+              <Square className="h-4 w-4" />
+            )}
+            <span className={directOnly ? "font-medium" : ""}>직항만</span>
+          </button>
+
           {/* 필터 팝오버 */}
           <Popover>
             <PopoverTrigger asChild>
