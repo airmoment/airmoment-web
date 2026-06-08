@@ -60,8 +60,8 @@ export function FlightCard({ flight }: FlightCardProps) {
           </span>
         </div>
 
-        {/* 시간 ↔ 소요시간 ↔ 시간 묶음 */}
-        <div className="flex min-w-0 items-center gap-4">
+        {/* 시간 ↔ 소요시간 ↔ 시간 묶음 — 중앙 정렬해서 좌우 여백 균형 */}
+        <div className="flex min-w-0 items-center justify-center gap-4">
           {/* 출발 */}
           <div className="flex items-baseline gap-1.5">
             <span className="whitespace-nowrap text-lg font-semibold text-foreground">
