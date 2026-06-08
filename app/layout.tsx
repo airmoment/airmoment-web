@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
+import { Suspense } from 'react'
 import { Header } from '@/components/header'
+import { NavigationProgress } from '@/components/navigation-progress'
 import { AuthProvider } from '@/lib/auth-context'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
@@ -46,6 +48,10 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <AuthProvider>
+          {/* useSearchParams 사용 컴포넌트라 Suspense로 감싸야 빌드 시 prerender 에러 X */}
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
           <Header />
           {children}
           <Toaster />

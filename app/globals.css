@@ -148,3 +148,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 상단 네비게이션 진행바 — components/navigation-progress.tsx 에서 사용 */
+@keyframes nav-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.nav-progress-bar {
+  animation: nav-progress-slide 1.5s ease-in-out infinite;
+}
