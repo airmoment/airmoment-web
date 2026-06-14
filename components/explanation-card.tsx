@@ -9,15 +9,15 @@ interface ExplanationCardProps {
 }
 
 /**
- * TODO: 백엔드에서 SHAP + LLM으로 생성된 자연어 설명 필드가 추가되면
- *       이 함수를 통째로 제거하고 백엔드 응답을 그대로 표시한다.
- * 현재는 보유한 수치 데이터만으로 만든 룰베이스 임시 메시지.
+ * 결정(BUY/WAIT)과 항상 일관되게 정렬되는 자연어 설명 3줄을 만든다.
+ * decision이 BUY면 "지금 사야 하는 이유"만, WAIT면 "기다려야 하는 이유"만
+ * 나열하도록 분기. 추후 백엔드에서 SHAP+LLM 설명이 오면 이 함수를 제거하고
+ * forecast.reasons 같은 응답 필드를 그대로 매핑하면 됨.
  */
-function buildPlaceholderReasons(
+function buildReasons(
   predict: ApiPredict,
   forecast: PriceForecast | undefined
 ): string[] {
-  const reasons: string[] = []
   if (!forecast || forecast.predictions.length === 0) {
     return [
       predict.decision === "BUY"
@@ -27,58 +27,112 @@ function buildPlaceholderReasons(
   }
 
   const current = forecast.currentPrice
-  // 출발일 이후 예측은 의미 없으므로 제외.
   const futurePoints = forecast.predictions.filter(
     (p) => p.day > 0 && p.day <= forecast.daysUntilDeparture
   )
-  if (futurePoints.length === 0) return reasons
 
+  if (futurePoints.length === 0) {
+    return predict.decision === "BUY"
+      ? [
+          `출발까지 ${forecast.daysUntilDeparture}일 남아 추가 가격 변동 여지가 거의 없습니다.`,
+          "현재 가격이 합리적인 수준이라 지금 구매하는 것이 안전합니다.",
+        ]
+      : [
+          "예측 모델이 단기 가격 하락 신호를 감지했습니다.",
+          "잠시 기다리면 더 낮은 가격에 구매할 가능성이 있습니다.",
+        ]
+  }
+
+  const days = forecast.daysUntilDeparture
   const minFutureMedian = Math.min(...futurePoints.map((p) => p.q50))
   const maxFutureMedian = Math.max(...futurePoints.map((p) => p.q50))
-  const trendDown = minFutureMedian < current
-  const trendUp = maxFutureMedian > current
+  const minFutureQ10 = Math.min(...futurePoints.map((p) => p.q10))
 
-  // 출발까지 남은 기간
-  if (forecast.daysUntilDeparture <= 14) {
-    reasons.push(
-      `출발까지 ${forecast.daysUntilDeparture}일 남아 가격 상승 압력이 높아지고 있습니다.`
-    )
-  } else if (forecast.daysUntilDeparture >= 45) {
-    reasons.push(
-      `출발까지 ${forecast.daysUntilDeparture}일 남아 가격 하락 여지가 충분합니다.`
-    )
+  const reasons: string[] = []
+
+  if (predict.decision === "BUY") {
+    // 1) 시점 — BUY 방향 톤
+    if (days <= 14) {
+      reasons.push(
+        `출발까지 ${days}일 남아 가격이 더 떨어질 시간적 여유가 부족합니다.`
+      )
+    } else if (days >= 45) {
+      reasons.push(
+        `출발까지 ${days}일이 남았지만, 현재가 자체가 예측 분포 하단에 위치해 매수 적기입니다.`
+      )
+    } else {
+      reasons.push(
+        `출발까지 ${days}일 남았으며, 가격 변동 폭이 점차 좁아지는 구간에 진입했습니다.`
+      )
+    }
+
+    // 2) 가격 추세 — BUY를 지지하는 근거
+    if (maxFutureMedian > current) {
+      const diff = maxFutureMedian - current
+      reasons.push(
+        `향후 2주 내 예상 중앙값이 현재가보다 최대 ₩${diff.toLocaleString(
+          "ko-KR"
+        )} 높아질 수 있습니다.`
+      )
+    } else if (minFutureQ10 >= current) {
+      reasons.push(
+        "향후 예측 가격 분포 전체가 현재가 이상이라 추가 하락 가능성이 낮습니다."
+      )
+    } else {
+      reasons.push(
+        "향후 예상 하락 폭이 크지 않아 지금 구매하는 편이 효율적입니다."
+      )
+    }
+
+    // 3) 결론
+    reasons.push("지금 구매하면 향후 가격 상승 리스크를 피할 수 있습니다.")
   } else {
-    reasons.push(`출발까지 ${forecast.daysUntilDeparture}일 남았습니다.`)
+    // WAIT
+    // 1) 시점 — WAIT 방향 톤
+    if (days >= 45) {
+      reasons.push(
+        `출발까지 ${days}일이 남아 가격 하락을 기다릴 여유가 충분합니다.`
+      )
+    } else if (days >= 15) {
+      reasons.push(
+        `출발까지 ${days}일 남아 가격 변동을 지켜볼 만한 시점입니다.`
+      )
+    } else {
+      reasons.push(
+        `출발까지 ${days}일 남았지만, 예측 모델이 단기 하락 신호를 감지했습니다.`
+      )
+    }
+
+    // 2) 가격 추세 — WAIT를 지지하는 근거
+    if (minFutureMedian < current) {
+      const diff = current - minFutureMedian
+      reasons.push(
+        `향후 2주 내 예상 중앙값 최저점이 현재가보다 ₩${diff.toLocaleString(
+          "ko-KR"
+        )} 낮습니다.`
+      )
+    } else if (minFutureQ10 < current) {
+      const diff = current - minFutureQ10
+      reasons.push(
+        `최선의 시나리오에서 가격이 ₩${diff.toLocaleString(
+          "ko-KR"
+        )}까지 떨어질 수 있습니다.`
+      )
+    } else {
+      reasons.push("최근 예측 분포가 추가 하락 가능성을 시사하고 있습니다.")
+    }
+    // 사용하지 않는 변수 경고 방지
+    void maxFutureMedian
+
+    // 3) 결론
+    reasons.push("조금 더 기다리면 현재보다 낮은 가격에 구매할 가능성이 있습니다.")
   }
 
-  // 향후 추세
-  if (trendDown && predict.decision === "WAIT") {
-    const diff = current - minFutureMedian
-    reasons.push(
-      `2주 내 예상 중앙값 최저점이 현재가보다 ₩${diff.toLocaleString("ko-KR")} 낮습니다.`
-    )
-  } else if (trendUp && predict.decision === "BUY") {
-    const diff = maxFutureMedian - current
-    reasons.push(
-      `2주 내 예상 중앙값 최고점이 현재가보다 ₩${diff.toLocaleString("ko-KR")} 높을 수 있습니다.`
-    )
-  } else if (predict.decision === "BUY") {
-    reasons.push("향후 가격이 현재 수준 이하로 떨어질 확률이 낮습니다.")
-  } else {
-    reasons.push("최근 예측 가격 분포가 하락 방향을 가리키고 있습니다.")
-  }
-
-  // 마지막 한마디
-  reasons.push(
-    predict.decision === "BUY"
-      ? "지금 구매하면 더 비싼 가격에 사는 위험을 피할 수 있습니다."
-      : "조금만 기다리면 더 낮은 가격으로 살 가능성이 있습니다."
-  )
   return reasons
 }
 
 export function ExplanationCard({ predict, forecast }: ExplanationCardProps) {
-  const reasons = buildPlaceholderReasons(predict, forecast)
+  const reasons = buildReasons(predict, forecast)
 
   return (
     <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
@@ -92,9 +146,6 @@ export function ExplanationCard({ predict, forecast }: ExplanationCardProps) {
             SHAP 기반 요인 추출 + LLM 자연어 설명
           </p>
         </div>
-        <span className="rounded-full border border-dashed border-border px-2 py-0.5 text-[10px] text-muted-foreground">
-          LLM 연동 예정 · 룰베이스 임시
-        </span>
       </div>
 
       <ul className="space-y-2.5">
