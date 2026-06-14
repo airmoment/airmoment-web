@@ -14,13 +14,18 @@ function formatKrw(v: number) {
 
 /**
  * 예측 데이터에서 의사결정용 요약 값을 뽑아낸다.
- * - 현재가: forecast.currentPrice
- * - 예상 최저가 도달일: 미래 예측들 중 q50이 가장 낮은 day
- * - 예상 최저가 범위: 그 날의 q10 ~ q90
- * - 예상 절감액: 현재가 - q10 (최선의 시나리오)
- *   현재가가 이미 q10 이하면 0 → UI에서 "-" 표시.
+ *
+ * 절감액 표시 규칙 (decision과 항상 일관되도록):
+ *  - BUY: 절감액은 "기다림"을 전제로 한 개념이라 BUY와 모순 → 항상 "-"
+ *  - WAIT + 현재가 > 예측 중앙값(q50_best): 기다리면 평균적으로 절감 가능
+ *    → maxSavings = current - q10_best (최선 시나리오 기준)
+ *  - WAIT + 현재가 ≤ 예측 중앙값: 기다려도 더 떨어질 전망 없음 (드문 케이스)
+ *    → "-"
  */
-function summarizeForecast(forecast: PriceForecast | undefined) {
+function summarizeForecast(
+  forecast: PriceForecast | undefined,
+  decision: "BUY" | "WAIT"
+) {
   if (!forecast || forecast.predictions.length === 0) return null
   const current = forecast.currentPrice
   // 출발일 이후 예측은 의미 없으므로 제외.
@@ -38,18 +43,25 @@ function summarizeForecast(forecast: PriceForecast | undefined) {
     high: lowestByMedian.q90,
     day: lowestByMedian.day,
   }
-  // 기다려서 절감 가능한 금액. 현재가가 이미 예측 최저(q10) 이하면 0.
-  const rawDiff = current - lowestByMedian.q10
-  const maxSavings = rawDiff > 0 ? rawDiff : 0
-  // 현재가가 이미 q10 이하 = 더 싸질 가능성 없음
-  const noSavings = rawDiff <= 0
 
-  return { current, expectedLowRange, maxSavings, noSavings }
+  // BUY는 절감액 의미가 없으므로 무조건 "-"
+  if (decision === "BUY") {
+    return { current, expectedLowRange, maxSavings: 0, noSavings: true }
+  }
+
+  // WAIT: 현재가가 예측 중앙값보다 높을 때만 절감액 표시
+  const currentAboveMedian = current > lowestByMedian.q50
+  if (!currentAboveMedian) {
+    return { current, expectedLowRange, maxSavings: 0, noSavings: true }
+  }
+  const maxSavings = current - lowestByMedian.q10
+  return { current, expectedLowRange, maxSavings, noSavings: false }
 }
 
-export function DecisionCard({ predict, forecast }: DecisionCardProps) {
+  
+  export function DecisionCard({ predict, forecast }: DecisionCardProps) {
   const isBuy = predict.decision === "BUY"
-  const summary = summarizeForecast(forecast)
+  const summary = summarizeForecast(forecast, predict.decision)
 
   // 결정별 색 토큰 — 카드 좌측 보더, 메인 배지, 강조 텍스트 모두 이 색에 맞춤
   const accent = isBuy
