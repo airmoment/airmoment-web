@@ -4,19 +4,21 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 /**
- * 페이지 상단의 얇은 진행바 (YouTube/GitHub 스타일).
+ * 페이지 상단의 진행바 + 우상단 작은 라벨.
  *
  * 라우트 또는 query 파라미터가 바뀌면 잠시 켜졌다가 자동으로 꺼진다.
  * 새 RSC 응답이 도착하는 정확한 시점을 client에서 알 수 없어 타임아웃 기반.
  * 검색 API 응답이 평균 6~7초이므로 8초 후 자동 종료. 그 사이에 새 변경이
  * 일어나면 타이머가 리셋된다.
+ *
+ * 시연 영상에서 잘 보이도록:
+ * - 바 두께 4px + 그림자
+ * - 우상단에 "재검색 중..." 작은 알약 (시선 잡기용)
  */
 export function NavigationProgress() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [active, setActive] = useState(false)
-  // 첫 마운트(=페이지 첫 로드)에는 띄우지 않는다.
-  // 그건 loading.tsx가 담당.
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -32,11 +34,26 @@ export function NavigationProgress() {
   if (!active) return null
 
   return (
-    <div
-      aria-hidden="true"
-      className="fixed left-0 right-0 top-0 z-[100] h-0.5 overflow-hidden bg-primary/10"
-    >
-      <div className="nav-progress-bar h-full w-1/3 rounded-r-full bg-primary" />
-    </div>
+    <>
+      {/* 상단 진행 바 — 4px, 살짝 그림자로 콘텐츠와 분리 */}
+      <div
+        aria-hidden="true"
+        className="fixed left-0 right-0 top-0 z-[100] h-1 overflow-hidden bg-primary/15 shadow-sm"
+      >
+        <div className="nav-progress-bar h-full w-1/3 rounded-r-full bg-primary" />
+      </div>
+
+      {/* 우상단 떠다니는 라벨 — 사용자 시선 잡기 */}
+      <div
+        aria-live="polite"
+        className="fixed right-4 top-3 z-[100] flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-medium text-foreground shadow-md"
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+        </span>
+        검색 결과 갱신 중
+      </div>
+    </>
   )
 }
