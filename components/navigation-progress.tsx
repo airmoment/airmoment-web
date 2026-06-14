@@ -43,10 +43,10 @@ export function NavigationProgress() {
         <div className="nav-progress-bar h-full w-1/3 rounded-r-full bg-primary" />
       </div>
 
-      {/* 우상단 떠다니는 라벨 — 사용자 시선 잡기 */}
+      {/* 상단 가운데에 떠 있는 라벨 — 헤더 바로 아래, 화면 중앙 */}
       <div
         aria-live="polite"
-        className="fixed right-4 top-3 z-[100] flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1.5 text-sm font-medium text-foreground shadow-md"
+        className="fixed left-1/2 top-20 z-[100] flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-md"
       >
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
