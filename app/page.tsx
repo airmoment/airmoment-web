@@ -6,7 +6,7 @@ export default function Home() {
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/airplane-bg.jpg"
+          src="/images/airplane-bg.png"
           alt=""
           className="h-full w-full object-cover"
         />
