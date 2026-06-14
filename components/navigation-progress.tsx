@@ -34,26 +34,11 @@ export function NavigationProgress() {
   if (!active) return null
 
   return (
-    <>
-      {/* 상단 진행 바 — 4px, 살짝 그림자로 콘텐츠와 분리 */}
-      <div
-        aria-hidden="true"
-        className="fixed left-0 right-0 top-0 z-[100] h-1 overflow-hidden bg-primary/15 shadow-sm"
-      >
-        <div className="nav-progress-bar h-full w-1/3 rounded-r-full bg-primary" />
-      </div>
-
-      {/* 상단 가운데에 떠 있는 라벨 — 헤더 바로 아래, 화면 중앙 */}
-      <div
-        aria-live="polite"
-        className="fixed left-1/2 top-20 z-[100] flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-md"
-      >
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-        </span>
-        검색 결과 갱신 중
-      </div>
-    </>
+    <div
+      aria-hidden="true"
+      className="fixed left-0 right-0 top-0 z-[100] h-1 overflow-hidden bg-primary/15 shadow-sm"
+    >
+      <div className="nav-progress-bar h-full w-1/3 rounded-r-full bg-primary" />
+    </div>
   )
 }

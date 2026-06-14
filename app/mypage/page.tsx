@@ -29,7 +29,12 @@ export default function MyPage() {
       try {
         const res = await getMypage(token)
         if (cancelled) return
-        setInterests(res.data.interests ?? [])
+        // 가장 최근 등록한 노선이 위에 오도록 interestId 내림차순 정렬.
+        // (interestId는 자동 증가 PK라 큰 값이 더 최근 등록임을 가정)
+        const sorted = [...(res.data.interests ?? [])].sort(
+          (a, b) => b.interestId - a.interestId
+        )
+        setInterests(sorted)
       } catch (err) {
         if (cancelled) return
         const msg =
