@@ -182,7 +182,17 @@ export default async function SearchResultsPage({
 
         {/* 항공권 리스트 */}
         <div className="mt-8">
-          <FlightList flights={flights} totalResults={totalResults} />
+          {/*
+            key를 검색 조건으로 묶어둠 — 노선/날짜가 바뀌면 FlightList가
+            언마운트→재마운트되며 정렬/필터 상태도 자동 초기화된다.
+            (옛 결과 기준으로 고른 항공사/가격 슬라이더가 새 결과에서 모두
+             걸러져 0개로 보이는 문제 방지)
+          */}
+          <FlightList
+            key={`${departureCode}-${arrivalCode}-${departureAt}`}
+            flights={flights}
+            totalResults={totalResults}
+          />
         </div>
       </div>
     </main>
