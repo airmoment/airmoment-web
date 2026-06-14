@@ -150,6 +150,8 @@ export function SearchSummaryBar({ searchParams, route }: SearchSummaryBarProps)
             <CalendarPicker
               mode="single"
               selected={currentDate ?? undefined}
+              // 현재 검색된 날짜의 달부터 보이도록 (없으면 오늘이 속한 달)
+              defaultMonth={currentDate ?? undefined}
               onSelect={selectDate}
               disabled={{ before: new Date() }}
               autoFocus
