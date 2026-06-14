@@ -27,7 +27,7 @@ export function NavigationProgress() {
       return
     }
     setActive(true)
-    const t = setTimeout(() => setActive(false), 8000)
+    const t = setTimeout(() => setActive(false), 1000)
     return () => clearTimeout(t)
   }, [pathname, searchParams])
 
