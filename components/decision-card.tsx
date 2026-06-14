@@ -2,6 +2,12 @@
 
 import { Check, Clock, TrendingDown } from "lucide-react"
 import type { ApiPredict, PriceForecast } from "@/lib/api"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface DecisionCardProps {
   predict: ApiPredict
@@ -125,8 +131,8 @@ function summarizeForecast(
             <Metric label="현재가" value={formatKrw(summary.current)} />
             <Metric
               label={`예상 최저가 (${summary.expectedLowRange.day}일 후)`}
-              value={`${formatKrw(summary.expectedLowRange.low)} ~ ${formatKrw(summary.expectedLowRange.high)}`}
-              sub={`중앙값 ${formatKrw(summary.expectedLowRange.median)}`}
+              value={formatKrw(summary.expectedLowRange.median)}
+              hoverHint={`예상 범위 ${formatKrw(summary.expectedLowRange.low)} ~ ${formatKrw(summary.expectedLowRange.high)}`}
             />
             <Metric
               label="예상 최대 절감액"
@@ -152,24 +158,41 @@ function Metric({
   sub,
   icon,
   accentClass,
+  hoverHint,
 }: {
   label: string
   value: string
   sub?: string
   icon?: React.ReactNode
   accentClass?: string
+  /** 값 위에 마우스를 올렸을 때 보일 추가 정보 (예: 범위, 보조 설명) */
+  hoverHint?: string
 }) {
+  const valueClasses = `text-base font-semibold ${accentClass ?? "text-foreground"}`
+  const valueNode = hoverHint ? (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <p
+            className={`${valueClasses} inline-block cursor-help underline decoration-muted-foreground/40 decoration-dotted underline-offset-[5px]`}
+          >
+            {value}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{hoverHint}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  ) : (
+    <p className={valueClasses}>{value}</p>
+  )
+
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {icon}
         <span>{label}</span>
       </div>
-      <p
-        className={`text-base font-semibold ${accentClass ?? "text-foreground"}`}
-      >
-        {value}
-      </p>
+      {valueNode}
       {sub && <p className="text-sm text-muted-foreground">{sub}</p>}
     </div>
   )
