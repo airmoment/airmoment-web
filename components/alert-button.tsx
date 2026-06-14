@@ -10,6 +10,7 @@ import {
   type InterestBody,
 } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
+import { markBookmarked } from "@/lib/bookmark-stamps"
 import { toast } from "@/hooks/use-toast"
 
 interface AlertButtonProps {
@@ -84,6 +85,7 @@ export function AlertButton({ route, className }: AlertButtonProps) {
         const res = await subscribeEmail(route, currentToken)
         setInterestId(res.data.interestId)
         setIsEnabled(true)
+        markBookmarked(route)
         toast({
           title: "이메일 알림이 설정되었습니다.",
           description: "가입 시 입력한 이메일로 최저가 도달 알림을 보내드려요.",
@@ -94,6 +96,7 @@ export function AlertButton({ route, className }: AlertButtonProps) {
         if (status === 400 && message.includes("이미")) {
           setIsEnabled(true)
           setInterestId(null)
+          markBookmarked(route)
           toast({
             title: "이미 알림이 설정되어 있습니다",
             description: "해제는 마이페이지에서 가능합니다.",

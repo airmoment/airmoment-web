@@ -11,6 +11,7 @@ import {
   type MypageInterest,
 } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
+import { markBookmarked } from "@/lib/bookmark-stamps"
 import { toast } from "@/hooks/use-toast"
 
 interface InterestCardProps {
@@ -55,6 +56,7 @@ export function InterestCard({ interest, onChanged }: InterestCardProps) {
     try {
       if (next) {
         await addBookmark(interestBody, token)
+        markBookmarked(interestBody)
         toast({ title: "관심노선이 설정되었습니다." })
       } else {
         await removeBookmark(interest.interestId, token)
@@ -79,6 +81,7 @@ export function InterestCard({ interest, onChanged }: InterestCardProps) {
     try {
       if (next) {
         await subscribeEmail(interestBody, token)
+        markBookmarked(interestBody)
         toast({ title: "이메일 알림이 설정되었습니다." })
       } else {
         await unsubscribeEmail(interest.interestId, token)

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { TrendingDown } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { ApiError, getMypage, type MypageInterest } from "@/lib/api"
+import { getAllBookmarkStamps, routeKeyOf } from "@/lib/bookmark-stamps"
 import { InterestCard } from "@/components/interest-card"
 import { Button } from "@/components/ui/button"
 
@@ -29,11 +30,29 @@ export default function MyPage() {
       try {
         const res = await getMypage(token)
         if (cancelled) return
-        // 가장 최근 등록한 노선이 위에 오도록 interestId 내림차순 정렬.
-        // (interestId는 자동 증가 PK라 큰 값이 더 최근 등록임을 가정)
-        const sorted = [...(res.data.interests ?? [])].sort(
-          (a, b) => b.interestId - a.interestId
-        )
+        // 정렬 전략:
+        // 1. 이 브라우저에서 직접 등록한 노선 → 등록 시각(stamp) DESC, 가장 최근이 맨 위
+        // 2. stamp가 없는 노선(다른 기기/이전 세션 등록) → 그 뒤에, interestId DESC
+        // 백엔드가 interestId를 노선 기준 재사용하는 경우가 있어 단순 interestId
+        // 정렬로는 "최근 등록" 직관을 충족 못 함. localStorage stamp가 우선.
+        const stamps = getAllBookmarkStamps()
+        const stampFor = (i: MypageInterest) =>
+          stamps[
+            routeKeyOf({
+              departureCode: i.departureCode,
+              arrivalCode: i.arrivalCode,
+              departureAt: i.departureAt,
+              nonstopOnly: i.nonStopOnly,
+            })
+          ]
+        const sorted = [...(res.data.interests ?? [])].sort((a, b) => {
+          const sa = stampFor(a)
+          const sb = stampFor(b)
+          if (sa !== undefined && sb !== undefined) return sb - sa
+          if (sa !== undefined) return -1
+          if (sb !== undefined) return 1
+          return b.interestId - a.interestId
+        })
         setInterests(sorted)
       } catch (err) {
         if (cancelled) return

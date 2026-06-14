@@ -10,6 +10,7 @@ import {
   type InterestBody,
 } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
+import { markBookmarked } from "@/lib/bookmark-stamps"
 import { toast } from "@/hooks/use-toast"
 
 interface BookmarkButtonProps {
@@ -88,6 +89,7 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
         const res = await addBookmark(route, currentToken)
         setInterestId(res.data.interestId)
         setIsBookmarked(true)
+        markBookmarked(route)
         toast({ title: "관심노선이 설정되었습니다." })
       } catch (err) {
         // 이미 등록된 케이스를 우아하게 처리. HMR 등으로 instanceof가 깨질 수 있어서
@@ -97,6 +99,7 @@ export function BookmarkButton({ route, variant = "pill", className }: BookmarkB
         if (status === 400 && message.includes("이미")) {
           setIsBookmarked(true)
           setInterestId(null)
+          markBookmarked(route)
           toast({
             title: "이미 관심노선으로 등록되어 있습니다",
             description: "해제는 마이페이지에서 가능합니다.",
