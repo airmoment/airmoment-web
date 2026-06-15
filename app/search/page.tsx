@@ -105,6 +105,7 @@ export default async function SearchResultsPage({
   let totalResults = mockTotalResults
   let predict: ApiPredict = { decision: "WAIT" }
   let forecast: PriceForecast | undefined
+  let reasons: string[] | undefined
   let apiError: string | null = null
 
   if (!token) {
@@ -123,6 +124,7 @@ export default async function SearchResultsPage({
       totalResults = result.data.totalCount
       predict = result.data.predict
       forecast = result.data.priceForecast
+      reasons = result.data.explain?.reasons
     } catch (err) {
       apiError =
         err instanceof Error ? err.message : "항공권 조회 API 호출에 실패했습니다."
@@ -177,7 +179,7 @@ export default async function SearchResultsPage({
 
         {/* ③ AI 판단 근거 자연어 설명 */}
         <div className="mt-6">
-          <ExplanationCard predict={predict} forecast={forecast} />
+          <ExplanationCard predict={predict} forecast={forecast} reasons={reasons} />
         </div>
 
         {/* 항공권 리스트 */}

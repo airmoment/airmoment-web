@@ -6,6 +6,8 @@ import type { ApiPredict, PriceForecast } from "@/lib/api"
 interface ExplanationCardProps {
   predict: ApiPredict
   forecast: PriceForecast | undefined
+  /** 백엔드의 SHAP+LLM 자연어 설명. 있으면 이걸 그대로 사용, 없으면 룰베이스 폴백. */
+  reasons?: string[]
 }
 
 /**
@@ -131,8 +133,17 @@ function buildReasons(
   return reasons
 }
 
-export function ExplanationCard({ predict, forecast }: ExplanationCardProps) {
-  const reasons = buildReasons(predict, forecast)
+export function ExplanationCard({
+  predict,
+  forecast,
+  reasons: backendReasons,
+}: ExplanationCardProps) {
+  // 백엔드가 SHAP+LLM 응답을 주면 그걸 그대로 사용 (정공법).
+  // 응답에 explain이 없거나(구버전) reasons가 비어있으면 룰베이스로 폴백.
+  const reasons =
+    backendReasons && backendReasons.length > 0
+      ? backendReasons
+      : buildReasons(predict, forecast)
 
   return (
     <div className="rounded-xl border border-border bg-white p-6 shadow-sm">

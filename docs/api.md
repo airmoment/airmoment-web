@@ -80,6 +80,14 @@ GET /api/v1/flights?departureCode=ICN&arrivalCode=CDG&departureAt=2026-07-17&sor
 | ↳ `price` | int | 가격 |
 | `predict` | jsonObject | AI 모델 예측 결과 |
 | ↳ `decision` | string | `BUY` 또는 `WAIT` |
+| `priceForecast` | jsonObject | 가격 예측 (분위수 밴드용) |
+| ↳ `route` | string | 노선 (예: `ICN-JFK`) |
+| ↳ `daysUntilDeparture` | int | 출발까지 남은 일수 |
+| ↳ `currentPrice` | int | 현재가 |
+| ↳ `predictions` | Array&lt;json&gt; | 시점별 분위수 가격 (day, q10~q90) |
+| ↳ `predictedAt` | LocalDateTime | 예측 수행 일시 |
+| `explain` | jsonObject | 예측 근거 설명 |
+| ↳ `reasons` | Array&lt;string&gt; | SHAP 기반 요인 추출 + LLM 자연어 설명 문장들 |
 
 ### 4️⃣ Success ✅ `200 OK`
 

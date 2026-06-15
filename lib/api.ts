@@ -132,9 +132,16 @@ export interface PriceForecast {
   predictedAt: string
 }
 
+export interface ApiExplain {
+  /** SHAP 기반 요인 추출 + LLM으로 생성된 자연어 설명 문장 목록 */
+  reasons: string[]
+}
+
 export interface ApiFlightData {
   predict: ApiPredict
   priceForecast?: PriceForecast
+  /** 백엔드의 SHAP+LLM 설명. 구버전 응답엔 없을 수 있어 optional. */
+  explain?: ApiExplain
   totalCount: number
   flightList: ApiFlightItem[]
 }
