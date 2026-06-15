@@ -179,7 +179,7 @@ export default async function SearchResultsPage({
 
         {/* ③ AI 판단 근거 자연어 설명 */}
         <div className="mt-6">
-          <ExplanationCard predict={predict} forecast={forecast} reasons={reasons} />
+          <ExplanationCard reasons={reasons} />
         </div>
 
         {/* 항공권 리스트 */}
