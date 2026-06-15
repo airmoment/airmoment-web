@@ -139,7 +139,9 @@ function summarizeForecast(
               value={summary.noSavings ? "-" : formatKrw(summary.maxSavings)}
               sub={
                 summary.noSavings
-                  ? "현재가가 예측 최저 이하"
+                  ? isBuy
+                    ? "지금 구매 권장"
+                    : "현재가가 예측 중앙값 이하"
                   : undefined
               }
               icon={<TrendingDown className={`h-4 w-4 ${accent.text}`} />}
